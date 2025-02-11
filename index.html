@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sendify</title>
+  <!-- PeerJS and FontAwesome -->
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
   <style>
@@ -18,7 +19,7 @@
       display: flex;
       height: 100vh;
       background: #0F1B1E;
-      color: white;
+      color: #eee;
       transition: background 0.3s, color 0.3s;
     }
     /* Light Theme Overrides */
@@ -28,20 +29,21 @@
     }
     body.light-theme .sidebar {
       background: #ddd;
-      color: #333;
     }
     body.light-theme .menu-item {
       color: #333;
     }
-    body.light-theme .menu-item:hover,
-    body.light-theme .menu-item.active {
+    body.light-theme .menu-item.active,
+    body.light-theme .menu-item:hover {
       background: #ccc;
     }
     body.light-theme .main-content {
       background: #f9f9f9;
       color: #333;
     }
-    body.light-theme .devices {
+    body.light-theme .devices,
+    body.light-theme .pending-items,
+    body.light-theme .incoming-item {
       background: #ccc;
     }
     body.light-theme .device {
@@ -51,7 +53,17 @@
     body.light-theme .device:hover {
       background: #aaa;
     }
-    
+    body.light-theme .select-btn {
+      background: #ccc;
+      color: #333;
+    }
+    body.light-theme .select-btn:hover {
+      background: #bbb;
+    }
+    body.light-theme #sendAllBtn {
+      background: #00c38a;
+    }
+
     /* Sidebar */
     .sidebar {
       width: 250px;
@@ -64,7 +76,7 @@
     .sidebar h1 {
       font-size: 22px;
       font-weight: bold;
-      color: white;
+      color: inherit;
     }
     .menu-item {
       display: flex;
@@ -73,19 +85,19 @@
       padding: 12px;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
-      color: white;
+      transition: background 0.3s;
+      color: inherit;
       font-size: 16px;
     }
     .menu-item i {
       font-size: 18px;
     }
-    .menu-item:hover,
-    .menu-item.active {
+    .menu-item.active,
+    .menu-item:hover {
       background: #1B2A2D;
     }
-    
-    /* Main Content Areas */
+
+    /* Main Content */
     .main-content {
       flex-grow: 1;
       padding: 30px;
@@ -100,7 +112,7 @@
       font-weight: bold;
       margin-bottom: 10px;
     }
-    
+
     /* Selection Buttons */
     .selection {
       display: flex;
@@ -109,17 +121,16 @@
     }
     .select-btn {
       background: #1B2A2D;
-      color: white;
+      color: inherit;
       padding: 20px;
       border-radius: 10px;
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      font-size: 16px;
       cursor: pointer;
-      transition: background 0.3s ease;
-      flex: 1;
+      transition: background 0.3s;
     }
     .select-btn:hover {
       background: #2D3D40;
@@ -127,7 +138,7 @@
     .select-btn i {
       font-size: 18px;
     }
-    
+
     /* Devices List */
     .nearby {
       margin-top: 20px;
@@ -146,44 +157,67 @@
       background: #2D3D40;
       padding: 12px;
       border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
       display: flex;
       align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
+      justify-content: space-between;
     }
     .device:hover {
       background: #00E0A5;
-      color: black;
+      color: #000;
     }
-    .device input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
+    .device.selected {
+      background: #00E0A5;
+      color: #000;
     }
-    
-    /* Settings */
-    .settings-group {
+    .device .device-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .device .device-name {
+      font-size: 16px;
+    }
+    .device .device-right i {
+      font-size: 18px;
+    }
+
+    /* Pending Items */
+    .pending-section {
       margin-top: 20px;
-      padding: 15px;
+    }
+    .pending-items {
       background: #1B2A2D;
+      padding: 15px;
       border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 50px;
     }
-    .settings-group label {
-      display: block;
-      margin-bottom: 5px;
-    }
-    select {
-      width: 100%;
-      padding: 8px;
-      border: none;
-      border-radius: 6px;
+    .pending-item {
       background: #2D3D40;
-      color: white;
-      outline: none;
+      padding: 10px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    
-    /* Incoming Files/Texts */
+    .pending-item span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pending-item .remove-btn {
+      background: none;
+      border: none;
+      color: #ff4d4d;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* Incoming Items */
     .incoming-list {
       margin-top: 15px;
     }
@@ -192,16 +226,45 @@
       padding: 10px;
       border-radius: 6px;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .incoming-item a {
       color: #00E0A5;
       text-decoration: none;
       margin-left: 10px;
     }
+    .incoming-item i {
+      margin-right: 8px;
+    }
+
+    /* Floating Send Button */
+    #sendAllBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #00E0A5;
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: background 0.3s;
+    }
+    #sendAllBtn:hover {
+      background: #00c38a;
+    }
   </style>
 </head>
 <body>
-  <!-- Hidden Inputs for File/Folder Selection -->
+  <!-- Hidden file inputs for file/folder selection -->
   <input type="file" id="fileInput" style="display: none;" />
   <input type="file" id="folderInput" style="display: none;" webkitdirectory directory multiple />
 
@@ -222,9 +285,9 @@
   <!-- Receive Page -->
   <div class="main-content active" id="receive">
     <h2 class="section-title">Incoming Files & Messages</h2>
-    <p>Waiting for incoming files/messages...</p>
-    <div id="incomingFilesList" class="incoming-list"></div>
-    <div id="incomingTextList" class="incoming-list"></div>
+    <div id="incomingList" class="incoming-list">
+      <p>Waiting for incoming files/messages…</p>
+    </div>
   </div>
 
   <!-- Send Page -->
@@ -247,7 +310,16 @@
 
     <div class="nearby">
       <h2 class="section-title">Nearby Devices</h2>
-      <div class="devices" id="deviceList">(No devices found)</div>
+      <div class="devices" id="deviceList">
+        (No devices found)
+      </div>
+    </div>
+
+    <div class="pending-section">
+      <h2 class="section-title">Pending Items</h2>
+      <div id="pendingItems" class="pending-items">
+        (No pending items)
+      </div>
     </div>
   </div>
 
@@ -270,9 +342,12 @@
     </div>
   </div>
 
+  <!-- Floating "Send All" Button -->
+  <button id="sendAllBtn" title="Send All Pending Items"><i class="fas fa-paper-plane"></i></button>
+
   <script>
     /***********************
-     * Tab Navigation
+     * TAB NAVIGATION
      ***********************/
     const tabs = document.querySelectorAll(".menu-item");
     const pages = document.querySelectorAll(".main-content");
@@ -286,225 +361,19 @@
     });
 
     /***********************
-     * PeerJS & Discovery
-     ***********************/
-    const WORDS = ["Rocket", "Guitar", "Phoenix"];
-    const MAX_NUM = 10;
-    const myID = `${WORDS[Math.floor(Math.random() * WORDS.length)]}-${Math.floor(Math.random() * MAX_NUM)}`;
-    const deviceList = document.getElementById("deviceList");
-    let peer = new Peer(myID);
-    let connections = []; // Each connection may have a custom property "selected"
-
-    peer.on("open", () => {
-      console.log("My peer ID is: " + myID);
-      discoverPeers();
-    });
-
-    peer.on("connection", conn => {
-      handleIncomingConnection(conn);
-    });
-
-    // Try to connect to all possible IDs (except our own)
-    function discoverPeers() {
-      const possibleIDs = [];
-      WORDS.forEach(word => {
-        for (let i = 0; i < MAX_NUM; i++) {
-          const candidateID = `${word}-${i}`;
-          if (candidateID !== myID) possibleIDs.push(candidateID);
-        }
-      });
-      possibleIDs.forEach(candidate => {
-        const conn = peer.connect(candidate, { reliable: true });
-        conn.on("open", () => handleIncomingConnection(conn));
-      });
-    }
-
-    // Register a connection if not already present, and attach data listener.
-    function handleIncomingConnection(conn) {
-      if (connections.some(c => c.peer === conn.peer)) return;
-      conn.selected = false; // default unselected
-      connections.push(conn);
-      // Listen for incoming data
-      conn.on("data", data => {
-        if (data && data.type === "file") {
-          displayIncomingFile(conn.peer, data);
-        } else if (data && data.type === "text") {
-          displayIncomingText(conn.peer, data);
-        }
-      });
-      renderDiscoveredPeers();
-    }
-
-    // Render the list of discovered peers with a checkbox for selection.
-    function renderDiscoveredPeers() {
-      deviceList.innerHTML = "";
-      if (connections.length === 0) {
-        deviceList.innerText = "(No devices found)";
-        return;
-      }
-      connections.forEach(conn => {
-        const div = document.createElement("div");
-        div.className = "device";
-        
-        // Create checkbox element
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = !!conn.selected;
-        // Prevent click from bubbling so that the container event can handle toggle uniformly.
-        checkbox.addEventListener("click", (e) => {
-          e.stopPropagation();
-          conn.selected = checkbox.checked;
-        });
-        
-        // Display the peer name
-        const label = document.createElement("span");
-        label.innerText = conn.peer;
-        
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        // Toggle selection when clicking on the device container.
-        div.addEventListener("click", () => {
-          conn.selected = !conn.selected;
-          checkbox.checked = conn.selected;
-        });
-        deviceList.appendChild(div);
-      });
-    }
-
-    /***********************
-     * Sending Functions
-     ***********************/
-    // Get references to the send buttons and hidden inputs.
-    const fileBtn = document.getElementById("fileBtn");
-    const folderBtn = document.getElementById("folderBtn");
-    const textBtn = document.getElementById("textBtn");
-    const pasteBtn = document.getElementById("pasteBtn");
-    const fileInput = document.getElementById("fileInput");
-    const folderInput = document.getElementById("folderInput");
-
-    // File sending: trigger file picker when fileBtn is clicked.
-    fileBtn.addEventListener("click", () => {
-      fileInput.value = "";
-      fileInput.click();
-    });
-
-    fileInput.addEventListener("change", () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      // Get all selected connections
-      const selectedConns = connections.filter(conn => conn.selected);
-      if (selectedConns.length === 0) {
-        alert("Please select at least one device to send the file.");
-        return;
-      }
-      selectedConns.forEach(conn => {
-        // Send an object containing the file's name and the file (Blob)
-        conn.send({ type: "file", name: file.name, data: file });
-      });
-      alert(`Sending "${file.name}" to ${selectedConns.length} device(s).`);
-    });
-
-    // Folder sending: if supported by browser, use folderInput (webkitdirectory)
-    folderBtn.addEventListener("click", () => {
-      folderInput.value = "";
-      folderInput.click();
-    });
-
-    folderInput.addEventListener("change", () => {
-      const files = folderInput.files;
-      if (!files || files.length === 0) return;
-      const selectedConns = connections.filter(conn => conn.selected);
-      if (selectedConns.length === 0) {
-        alert("Please select at least one device to send the folder.");
-        return;
-      }
-      // For simplicity, send each file individually.
-      Array.from(files).forEach(file => {
-        selectedConns.forEach(conn => {
-          conn.send({ type: "file", name: file.name, data: file });
-        });
-      });
-      alert(`Sending folder with ${files.length} file(s) to ${selectedConns.length} device(s).`);
-    });
-
-    // Text sending: prompt for text then send.
-    textBtn.addEventListener("click", () => {
-      const text = prompt("Enter the text message to send:");
-      if (!text) return;
-      const selectedConns = connections.filter(conn => conn.selected);
-      if (selectedConns.length === 0) {
-        alert("Please select at least one device to send the text.");
-        return;
-      }
-      selectedConns.forEach(conn => {
-        conn.send({ type: "text", message: text });
-      });
-      alert(`Sent text message to ${selectedConns.length} device(s).`);
-    });
-
-    // Paste sending: for demonstration, similar to text.
-    pasteBtn.addEventListener("click", () => {
-      const text = prompt("Paste your text here:");
-      if (!text) return;
-      const selectedConns = connections.filter(conn => conn.selected);
-      if (selectedConns.length === 0) {
-        alert("Please select at least one device to send the pasted text.");
-        return;
-      }
-      selectedConns.forEach(conn => {
-        conn.send({ type: "text", message: text });
-      });
-      alert(`Sent pasted text to ${selectedConns.length} device(s).`);
-    });
-
-    /***********************
-     * Receiving Functions
-     ***********************/
-    // Display an incoming file in the Receive page.
-    function displayIncomingFile(sender, data) {
-      const list = document.getElementById("incomingFilesList");
-      const fileItem = document.createElement("div");
-      fileItem.className = "incoming-item";
-      fileItem.innerHTML = `<strong>${sender}</strong> sent <em>${data.name}</em>`;
-      const downloadLink = document.createElement("a");
-      // Create a URL for the file blob
-      const url = URL.createObjectURL(data.data);
-      downloadLink.href = url;
-      downloadLink.download = data.name;
-      downloadLink.innerText = "Download";
-      fileItem.appendChild(downloadLink);
-      list.appendChild(fileItem);
-    }
-
-    // Display incoming text messages.
-    function displayIncomingText(sender, data) {
-      const list = document.getElementById("incomingTextList");
-      const textItem = document.createElement("div");
-      textItem.className = "incoming-item";
-      textItem.innerHTML = `<strong>${sender}</strong> says: ${data.message}`;
-      list.appendChild(textItem);
-    }
-
-    /***********************
-     * Settings Functions
+     * THEME & SETTINGS
      ***********************/
     const themeSelect = document.getElementById("themeSelect");
     const downloadLocationSelect = document.getElementById("downloadLocation");
-
-    // Load saved settings from localStorage if available.
     window.addEventListener("load", () => {
       const savedTheme = localStorage.getItem("theme") || "dark";
       themeSelect.value = savedTheme;
       if (savedTheme === "light") {
         document.body.classList.add("light-theme");
-      } else {
-        document.body.classList.remove("light-theme");
       }
       const savedDownload = localStorage.getItem("downloadLocation") || "default";
       downloadLocationSelect.value = savedDownload;
     });
-
-    // Update theme setting
     themeSelect.addEventListener("change", (e) => {
       if (e.target.value === "light") {
         document.body.classList.add("light-theme");
@@ -513,8 +382,6 @@
       }
       localStorage.setItem("theme", e.target.value);
     });
-
-    // Update download location setting.
     downloadLocationSelect.addEventListener("change", (e) => {
       const selection = e.target.value;
       if (selection === "custom") {
@@ -523,7 +390,6 @@
           localStorage.setItem("downloadLocation", customFolder);
           alert("Custom download folder set to: " + customFolder);
         } else {
-          // Revert to default if nothing is entered
           e.target.value = "default";
           localStorage.setItem("downloadLocation", "default");
         }
@@ -531,6 +397,231 @@
         localStorage.setItem("downloadLocation", selection);
       }
     });
+
+    /***********************
+     * PEERJS & DEVICE DISCOVERY
+     ***********************/
+    const WORDS = ["Rocket", "Guitar", "Phoenix"];
+    const MAX_NUM = 10;
+    const myID = `${WORDS[Math.floor(Math.random() * WORDS.length)]}-${Math.floor(Math.random() * MAX_NUM)}`;
+    const peer = new Peer(myID);
+    let connections = [];
+    peer.on("open", () => {
+      console.log("My peer ID is:", myID);
+      discoverPeers();
+    });
+    peer.on("connection", conn => {
+      handleIncomingConnection(conn);
+    });
+    function discoverPeers() {
+      const possibleIDs = [];
+      WORDS.forEach(word => {
+        for (let i = 0; i < MAX_NUM; i++) {
+          const candidate = `${word}-${i}`;
+          if (candidate !== myID) possibleIDs.push(candidate);
+        }
+      });
+      possibleIDs.forEach(candidate => {
+        const conn = peer.connect(candidate, { reliable: true });
+        conn.on("open", () => handleIncomingConnection(conn));
+      });
+    }
+    // Returns a FontAwesome icon class based on device type.
+    function getDeviceIcon() {
+      const ua = navigator.userAgent;
+      if (/Mobile|Android|iP(hone|od)/.test(ua)) {
+        return "fa-mobile-alt";
+      } else if (/iPad|Tablet/.test(ua)) {
+        return "fa-tablet-alt";
+      } else {
+        return "fa-desktop";
+      }
+    }
+    function handleIncomingConnection(conn) {
+      if (connections.some(c => c.peer === conn.peer)) return;
+      conn.selected = false; // not selected by default
+      conn.device = "fa-desktop"; // default icon
+      connections.push(conn);
+      // When a connection opens, send our device info.
+      conn.on("open", () => {
+        conn.send({ type: "handshake", device: getDeviceIcon() });
+      });
+      conn.on("data", data => {
+        if (data.type === "handshake") {
+          conn.device = data.device || "fa-desktop";
+          renderDiscoveredPeers();
+        } else if (data.type === "file") {
+          displayIncomingFile(conn.peer, data);
+        } else if (data.type === "text") {
+          displayIncomingText(conn.peer, data);
+        }
+      });
+      renderDiscoveredPeers();
+    }
+    function renderDiscoveredPeers() {
+      const deviceList = document.getElementById("deviceList");
+      deviceList.innerHTML = "";
+      if (connections.length === 0) {
+        deviceList.innerText = "(No devices found)";
+        return;
+      }
+      connections.forEach(conn => {
+        const div = document.createElement("div");
+        div.className = "device" + (conn.selected ? " selected" : "");
+        // Left side: (if selected, show a check icon) + device name.
+        const leftDiv = document.createElement("div");
+        leftDiv.className = "device-left";
+        if (conn.selected) {
+          const checkIcon = document.createElement("i");
+          checkIcon.className = "fas fa-check-circle";
+          leftDiv.appendChild(checkIcon);
+        }
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "device-name";
+        nameSpan.innerText = conn.peer;
+        leftDiv.appendChild(nameSpan);
+        // Right side: show the device type icon.
+        const rightDiv = document.createElement("div");
+        rightDiv.className = "device-right";
+        const deviceIcon = document.createElement("i");
+        deviceIcon.className = "fas " + (conn.device || "fa-desktop");
+        rightDiv.appendChild(deviceIcon);
+        div.appendChild(leftDiv);
+        div.appendChild(rightDiv);
+        div.addEventListener("click", () => {
+          conn.selected = !conn.selected;
+          renderDiscoveredPeers();
+        });
+        deviceList.appendChild(div);
+      });
+    }
+
+    /***********************
+     * PENDING ITEMS (QUEUE) & SENDING
+     ***********************/
+    let pendingItems = [];
+    function updatePendingItemsUI() {
+      const pendingContainer = document.getElementById("pendingItems");
+      pendingContainer.innerHTML = "";
+      if (pendingItems.length === 0) {
+        pendingContainer.innerText = "(No pending items)";
+        return;
+      }
+      pendingItems.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "pending-item";
+        if (item.type === "file") {
+          div.innerHTML = `<i class="fas fa-file"></i> ${item.name}`;
+        } else if (item.type === "text") {
+          div.innerHTML = `<i class="fas fa-font"></i> ${item.message.substring(0, 20)}${item.message.length > 20 ? '...' : ''}`;
+        }
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "remove-btn";
+        removeBtn.innerHTML = "&times;";
+        removeBtn.addEventListener("click", () => {
+          pendingItems.splice(index, 1);
+          updatePendingItemsUI();
+        });
+        div.appendChild(removeBtn);
+        pendingContainer.appendChild(div);
+      });
+    }
+    // File/Folders are not sent immediately. They are added to the pendingItems queue.
+    const fileBtn = document.getElementById("fileBtn");
+    const folderBtn = document.getElementById("folderBtn");
+    const textBtn = document.getElementById("textBtn");
+    const pasteBtn = document.getElementById("pasteBtn");
+    const fileInput = document.getElementById("fileInput");
+    const folderInput = document.getElementById("folderInput");
+    fileBtn.addEventListener("click", () => {
+      fileInput.value = "";
+      fileInput.click();
+    });
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (file) {
+        addFileToPending(file);
+      }
+    });
+    folderBtn.addEventListener("click", () => {
+      folderInput.value = "";
+      folderInput.click();
+    });
+    folderInput.addEventListener("change", () => {
+      const files = folderInput.files;
+      if (files.length > 0) {
+        Array.from(files).forEach(file => {
+          addFileToPending(file);
+        });
+      }
+    });
+    textBtn.addEventListener("click", () => {
+      const text = prompt("Enter text message:");
+      if (text && text.trim() !== "") {
+        pendingItems.push({ type: "text", message: text });
+        updatePendingItemsUI();
+      }
+    });
+    pasteBtn.addEventListener("click", () => {
+      const text = prompt("Paste your text:");
+      if (text && text.trim() !== "") {
+        pendingItems.push({ type: "text", message: text });
+        updatePendingItemsUI();
+      }
+    });
+    function addFileToPending(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        pendingItems.push({ type: "file", name: file.name, data: e.target.result });
+        updatePendingItemsUI();
+      };
+      reader.readAsDataURL(file);
+    }
+    // When the floating "Send All" button is clicked, send every pending item to all selected devices.
+    const sendAllBtn = document.getElementById("sendAllBtn");
+    sendAllBtn.addEventListener("click", () => {
+      const selectedConns = connections.filter(conn => conn.selected);
+      if (selectedConns.length === 0) {
+        alert("Please select at least one device.");
+        return;
+      }
+      if (pendingItems.length === 0) {
+        alert("No pending items to send.");
+        return;
+      }
+      selectedConns.forEach(conn => {
+        pendingItems.forEach(item => {
+          conn.send(item);
+        });
+      });
+      pendingItems = [];
+      updatePendingItemsUI();
+    });
+
+    /***********************
+     * RECEIVING FILES & TEXT
+     ***********************/
+    // Display an incoming file with a download link.
+    function displayIncomingFile(sender, data) {
+      const incomingContainer = document.getElementById("incomingList");
+      const div = document.createElement("div");
+      div.className = "incoming-item";
+      div.innerHTML = `<div><i class="fas fa-file"></i> <strong>${sender}</strong> sent <em>${data.name}</em></div>`;
+      const downloadLink = document.createElement("a");
+      downloadLink.href = data.data; // data URL from the sender
+      downloadLink.download = data.name;
+      downloadLink.innerHTML = '<i class="fas fa-download"></i>';
+      div.appendChild(downloadLink);
+      incomingContainer.appendChild(div);
+    }
+    // Display incoming text messages.
+    function displayIncomingText(sender, data) {
+      const incomingContainer = document.getElementById("incomingList");
+      const div = document.createElement("div");
+      div.className = "incoming-item";
+      div.innerHTML = `<div><i class="fas fa-font"></i> <strong>${sender}</strong>: ${data.message}</div>`;
+      incomingContainer.appendChild(div);
+    }
   </script>
 </body>
 </html>
