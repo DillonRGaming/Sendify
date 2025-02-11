@@ -29,6 +29,9 @@
     <div class="menu-item" data-tab="send">
       <i class="fas fa-paper-plane"></i> Send
     </div>
+    <div class="menu-item" data-tab="storage">
+      <i class="fas fa-hdd"></i> Storage
+    </div>
     <div class="menu-item" data-tab="settings">
       <i class="fas fa-cog"></i> Settings
     </div>
@@ -80,16 +83,30 @@
         <p class="text-secondary">No pending items</p>
       </div>
     </div>
-
-    <div class="transfer-status">
-        <h2 class="section-title">Transfer Status</h2>
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-        <p id="transferInfo">Waiting to send...</p>
-        <p id="transferSpeed"></p>
-    </div>
   </div>
+
+    <!-- Storage Page -->
+    <div class="main-content" id="storage">
+        <h2 class="section-title">Stored Files</h2>
+        <div class="selection">
+            <div class="select-btn" id="storageFileBtn">
+                <i class="fas fa-file"></i> File
+            </div>
+            <div class="select-btn" id="storageFolderBtn">
+                <i class="fas fa-folder"></i> Folder
+            </div>
+            <div class="select-btn" id="storageTextBtn">
+                <i class="fas fa-font"></i> Text
+            </div>
+            <div class="select-btn" id="storagePasteBtn">
+                <i class="fas fa-clipboard"></i> Paste
+            </div>
+        </div>
+        <input type="file" id="storageFileInput">
+        <div id="storedFiles" class="stored-files">
+          <p class="text-secondary">No files stored</p>
+        </div>
+    </div>
 
   <!-- Settings Page -->
   <div class="main-content" id="settings">
