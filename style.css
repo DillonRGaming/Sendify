@@ -1,348 +1,403 @@
-/* CSS Variables for Themes */
 :root {
-    --font-primary: 'Roboto', sans-serif;
-    --font-code: 'Fira Code', monospace;
-  }
-  
-  /* Reset & Base Styles */
-  html, body {
-    height: 100%;
-    margin: 0;
-    font-family: var(--font-primary);
-  }
-  
-  body {
-    display: flex;
-    flex-direction: row;
-  }
-  
-  /* Theme Definitions */
-  .theme-dark {
-    --bg-primary: #0F1B1E;
-    --bg-secondary: #081416;
-    --bg-tertiary: #1B2A2D;
-    --bg-hover: #2D3D40;
-    --text-primary: #eee;
-    --text-secondary: #aaa;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --accent-color: #00E0A5;
-    --accent-color-hover: #00c290;
-    --send-button-color: var(--bg-tertiary); /* Use bg-tertiary for consistent look */
-    --send-button-hover-color: var(--bg-hover); /* Use bg-hover for consistent hover */
-  }
-  
-  .theme-light {
-    --bg-primary: #f0f0f0;
-    --bg-secondary: #ddd;
-    --bg-tertiary: #ccc;
-    --bg-hover: #bbb;
-    --text-primary: #333;
-    --text-secondary: #666;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --accent-color: #00c38a;
-    --accent-color-hover: #00a575;
-    --send-button-color: var(--bg-tertiary); /* Use bg-tertiary for consistent look */
-    --send-button-hover-color: var(--bg-hover); /* Use bg-hover for consistent hover */
-  }
-  
-  .theme-blue {
-    --bg-primary: #001f3f;
-    --bg-secondary: #001933;
-    --bg-tertiary: #003366;
-    --bg-hover: #00284d;
-    --text-primary: #ddd;
-    --text-secondary: #aaa;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --accent-color: #0088cc;
-    --accent-color-hover: #0077b3;
-    --send-button-color: var(--bg-tertiary); /* Use bg-tertiary for consistent look */
-    --send-button-hover-color: var(--bg-hover); /* Use bg-hover for consistent hover */
-  }
-  
-  /* Layout Components */
-  .sidebar {
-    width: 250px;
-    padding: 20px;
-    background: var(--bg-secondary);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    overflow: hidden; /* Fixes the white corner issue */
-  }
-  
-  .main-content {
-    flex-grow: 1;
-    padding: 30px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    display: none;
-    overflow-y: auto;
-  }
-  
-  .main-content.active {
-    display: block;
-  }
-  
-  /* Header Styles */
-  .section-title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: var(--text-primary);
-  }
-  
-  /* Menu Items */
-  .menu-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-    color: var(--text-primary);
-  }
-  
-  .menu-item:hover,
-  .menu-item.active {
-    background: var(--bg-tertiary);
-  }
-  
-  .menu-item i {
-    font-size: 18px;
-  }
-  
-  /* Profile Section */
-  .profile {
-    margin-top: auto;
-    padding: 15px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .profile-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .profile-name {
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-  
-  .profile-device {
-    color: var(--text-secondary);
-    font-style: italic; /* Make "You are:" italic */
-  }
-  
-  /* Selection Buttons */
-  .selection {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-  
-  .select-btn {
-    padding: 15px;
-    border-radius: 10px;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .select-btn:hover {
-    background: var(--bg-hover);
-  }
-  
-  /* Device List */
-  .devices {
-    background: var(--bg-tertiary);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-  }
-  
-  .device {
-    padding: 12px;
-    border-radius: 8px;
-    background: var(--bg-hover);
-    color: var(--text-primary);
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: background 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .device:last-child {
-    margin-bottom: 0;
-  }
-  
-  .device-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .device.selected {
-    background: var(--accent-color);
-    color: #fff;
-  }
-  
-  /* Pending Items Grid */
-  .pending-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px;
-    padding: 15px;
-    background: var(--bg-tertiary);
-    border-radius: 8px;
-  }
-  
-  .pending-item {
-    background: var(--bg-hover);
-    border-radius: 8px;
-    padding: 15px;
-    color: var(--text-primary);
-  }
-  
-  .pending-item-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  
-  .pending-item-name {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-  }
-  
-  .pending-item-name span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 180px;
-  }
-  
-  .pending-item-actions {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .pending-item-actions button {
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    padding: 5px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s;
-  }
-  
-  .pending-item-actions button:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  /* File Preview */
-  .file-preview {
-    display: none;
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--bg-secondary);
-  }
-  
-  .file-preview.active {
-    display: block;
-  }
-  
-  .preview-content {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-  }
-  
-  .preview-content.image {
-    object-fit: contain;
-    background: #000;
-  }
-  
-  .preview-content.video {
-    background: #000;
-  }
-  
-  .preview-content.code {
-    height: 200px;
-    overflow: auto;
-    padding: 10px;
-    font-family: var(--font-code);
-    font-size: 12px;
-    line-height: 1.4;
-    margin: 0;
-    white-space: pre;
-  }
-  
-  /* Settings */
-  .settings-group {
-    margin-bottom: 20px;
-  }
-  
-  .settings-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-  
-  .settings-select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    font-family: var(--font-primary);
-  }
-  
-  /* Floating Send Button */
-  #sendAllBtn {
-    position: fixed;
-    bottom: 30px; /* Further from the bottom */
-    right: 30px; /* Further from the right */
-    background: var(--bg-tertiary); /* Match select-btn background */
-    color: var(--text-primary);
-    width: auto; /* Adjust width to content */
-    height: auto; /* Adjust height to content */
-    padding: 12px 20px; /* Add padding for a rectangular shape */
-    border-radius: 8px; /* Rectangular shape */
-    border: none;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* gap: 8px; */
-    cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-  }
-  
-  #sendAllBtn:hover {
-    transform: scale(1.05);
-    background: var(--bg-hover); /* Match select-btn hover background */
-  }
-  
-  /* File Inputs */
-  input[type="file"] {
-    display: none;
-  }
+  --font-primary: 'Roboto', sans-serif;
+  --font-code: 'Fira Code', monospace;
+  --loading-bar-bg: var(--bg-tertiary);
+  --loading-bar-fill: var(--accent-color);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-primary);
+}
+
+body {
+  display: flex;
+  flex-direction: row;
+}
+
+.theme-dark {
+  --bg-primary: #0F1B1E;
+  --bg-secondary: #081416;
+  --bg-tertiary: #1B2A2D;
+  --bg-hover: #2D3D40;
+  --text-primary: #eee;
+  --text-secondary: #aaa;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-color: #00E0A5;
+  --accent-color-hover: #00c290;
+  --send-button-color: var(--bg-tertiary);
+  --send-button-hover-color: var(--bg-hover);
+  --icon-color: #fff;
+  --my-device-icon-color: #fff;
+}
+
+.theme-light {
+  --bg-primary: #f0f0f0;
+  --bg-secondary: #ddd;
+  --bg-tertiary: #ccc;
+  --bg-hover: #bbb;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --accent-color: #00c38a;
+  --accent-color-hover: #00a575;
+  --send-button-color: var(--bg-tertiary);
+  --send-button-hover-color: var(--bg-hover);
+  --icon-color: #333;
+  --my-device-icon-color: #333;
+}
+
+.theme-blue {
+  --bg-primary: #001f3f;
+  --bg-secondary: #001933;
+  --bg-tertiary: #003366;
+  --bg-hover: #00284d;
+  --text-primary: #ddd;
+  --text-secondary: #aaa;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-color: #0088cc;
+  --accent-color-hover: #0077b3;
+  --send-button-color: var(--bg-tertiary);
+  --send-button-hover-color: var(--bg-hover);
+  --icon-color: #fff;
+    --my-device-icon-color: #fff;
+}
+
+.sidebar {
+  width: 250px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  display: none;
+  overflow-y: auto;
+}
+
+.main-content.active {
+  display: block;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  color: var(--text-primary);
+}
+
+.menu-item:hover,
+.menu-item.active {
+  background: var(--bg-tertiary);
+}
+
+.menu-item i {
+  font-size: 18px;
+  color: var(--icon-color);
+}
+
+.profile {
+  margin-top: auto;
+  padding: 15px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.profile-device {
+  color: var(--text-secondary);
+}
+
+.profile-device::before {
+  content: "You are: ";
+  font-style: normal;
+}
+
+.profile-info i {
+  color: var(--icon-color);
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+.selection {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.select-btn {
+  padding: 15px;
+  border-radius: 10px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.select-btn:hover {
+  background: var(--bg-hover);
+}
+
+.devices {
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.device {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.device:last-child {
+  margin-bottom: 0;
+}
+
+.device-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.device.selected {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.pending-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+}
+
+.pending-item {
+  background: var(--bg-hover);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pending-item-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.pending-item-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.pending-item-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.pending-item-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.pending-item-actions button {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.pending-item-actions button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.file-preview {
+  display: none;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.file-preview.active {
+  display: block;
+}
+
+.preview-content {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.preview-content.image {
+  object-fit: contain;
+  background: #000;
+}
+
+.preview-content.video {
+  background: #000;
+}
+
+.preview-content.code {
+  height: 200px;
+  overflow: auto;
+  padding: 10px;
+  font-family: var(--font-code);
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0;
+  white-space: pre;
+}
+
+.settings-group {
+  margin-bottom: 20px;
+}
+
+.settings-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.settings-select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-primary);
+}
+
+.loading-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: var(--loading-bar-bg);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.loading-bar {
+  height: 100%;
+  width: 0%;
+  background-color: var(--loading-bar-fill);
+  border-radius: 5px;
+  transition: width 0.3s ease-in-out;
+}
+
+#sendAllBtn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  width: auto;
+  height: auto;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+#sendAllBtn:hover {
+  transform: scale(1.05);
+  background: var(--bg-hover);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.menu-item i,
+.profile-info i,
+.pending-item i {
+  color: var(--icon-color); /* Set icon color to theme color */
+}
+
+.incoming-item {
+  background: var(--bg-hover);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.incoming-item a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.incoming-item a:hover {
+  text-decoration: underline;
+}
+
+#myDeviceIcon path {
+  fill: var(--my-device-icon-color);
+}
