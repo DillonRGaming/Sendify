@@ -3,44 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sendify</title>
+  <title>Sendify - LocalSend UI</title>
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
   <style>
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
       font-family: 'Inter', sans-serif;
     }
 
     body {
       display: flex;
       height: 100vh;
-      background: #0D0F11;
-      color: #E0E0E0;
+      background: #0F1B1E;
+      color: white;
     }
 
     .sidebar {
       width: 250px;
-      background: #111416;
+      background: #081416;
       padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      border-right: 2px solid #1E2124;
     }
 
-    .logo {
-      font-size: 24px;
+    .sidebar h1 {
+      font-size: 22px;
       font-weight: bold;
       color: white;
-    }
-
-    .menu {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
     }
 
     .menu-item {
@@ -48,241 +41,204 @@
       align-items: center;
       gap: 10px;
       padding: 10px;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease;
-    }
-
-    .menu-item:hover {
-      background: #1E2124;
+      color: white;
     }
 
     .menu-item i {
       font-size: 18px;
-      color: #76FFA7;
     }
 
-    .content {
-      flex: 1;
+    .menu-item:hover,
+    .menu-item.active {
+      background: #1B2A2D;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      padding: 30px;
+      display: none;
+    }
+
+    .main-content.active {
+      display: block;
+    }
+
+    .selection {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: #00E0A5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      color: #0D0F11;
-      font-weight: bold;
-    }
-
-    .username {
-      font-size: 24px;
-      margin-top: 15px;
-    }
-
-    .user-id {
-      font-size: 18px;
-      color: #76FFA7;
-    }
-
-    .status {
-      margin-top: 10px;
-      font-size: 14px;
-      opacity: 0.7;
-    }
-
-    .peer-list {
-      margin-top: 30px;
-      width: 300px;
-      background: #1E2124;
-      border-radius: 8px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
       gap: 10px;
-      text-align: left;
     }
 
-    .peer {
-      background: #333;
-      padding: 10px;
-      border-radius: 6px;
+    .select-btn {
+      background: #1B2A2D;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       cursor: pointer;
       transition: background 0.3s ease;
     }
 
-    .peer:hover {
-      background: #00E0A5;
-      color: #0D0F11;
+    .select-btn:hover {
+      background: #2D3D40;
     }
 
-    .file-section {
+    .select-btn i {
+      font-size: 20px;
+    }
+
+    .nearby {
       margin-top: 20px;
     }
 
-    button {
-      padding: 10px 15px;
-      border: none;
+    .devices {
+      background: #1B2A2D;
+      padding: 15px;
       border-radius: 8px;
-      background: #00E0A5;
-      color: #0D0F11;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 150px;
+      overflow-y: auto;
     }
 
-    button:hover {
-      background: #1EDCB3;
-      transform: translateY(-3px);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    .file-label {
-      background: #252525;
+    .device {
+      background: #2D3D40;
       padding: 10px;
       border-radius: 6px;
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .device:hover {
+      background: #00E0A5;
+      color: black;
+    }
+
+    .device i {
+      font-size: 18px;
+    }
+
+    .troubleshoot {
+      margin-top: 20px;
+      text-align: center;
+      color: #00E0A5;
       cursor: pointer;
     }
 
-    .incoming-files {
-      margin-top: 20px;
-    }
-
-    .download-link {
-      display: block;
-      margin-top: 10px;
-      color: #76FFA7;
+    .troubleshoot:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
 
+  <!-- Sidebar -->
   <div class="sidebar">
-    <div class="logo">Sendify</div>
-    <div class="menu">
-      <div class="menu-item"><i class="fas fa-wifi"></i> Receive</div>
-      <div class="menu-item"><i class="fas fa-paper-plane"></i> Send</div>
-      <div class="menu-item"><i class="fas fa-cog"></i> Settings</div>
-    </div>
+    <h1>LocalSend</h1>
+    <div class="menu-item active" data-tab="receive"><i class="fas fa-wifi"></i> Receive</div>
+    <div class="menu-item" data-tab="send"><i class="fas fa-play"></i> Send</div>
+    <div class="menu-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</div>
   </div>
 
-  <div class="content">
-    <div class="avatar"><i class="fas fa-circle-notch"></i></div>
-    <div class="username" id="peer-name">Nice Banana</div>
-    <div class="user-id" id="peer-id">#127</div>
-    <div class="status">Quick Save: Off</div>
+  <!-- Receive Page -->
+  <div class="main-content active" id="receive">
+    <h2>Receive Files</h2>
+    <p>Waiting for incoming files...</p>
+  </div>
 
-    <div class="peer-list" id="peer-list">(No peers yet)</div>
-
-    <div class="file-section">
-      <label class="file-label" for="fileInput">Choose File</label>
-      <input type="file" id="fileInput">
-      <button id="sendFileBtn">Send File</button>
+  <!-- Send Page -->
+  <div class="main-content" id="send">
+    <h2>Selection</h2>
+    <div class="selection">
+      <div class="select-btn" id="fileBtn"><i class="fas fa-file"></i> File</div>
+      <div class="select-btn" id="folderBtn"><i class="fas fa-folder"></i> Folder</div>
+      <div class="select-btn" id="textBtn"><i class="fas fa-align-left"></i> Text</div>
+      <div class="select-btn" id="pasteBtn"><i class="fas fa-clipboard"></i> Paste</div>
     </div>
 
-    <div class="incoming-files" id="incomingFiles"></div>
+    <div class="nearby">
+      <h3>Nearby devices</h3>
+      <div class="devices" id="deviceList">(No devices found)</div>
+    </div>
+
+    <div class="troubleshoot">Troubleshoot</div>
+  </div>
+
+  <!-- Settings Page -->
+  <div class="main-content" id="settings">
+    <h2>Settings</h2>
+    <p>Settings coming soon...</p>
   </div>
 
   <script>
-    const WORDS = ["Banana", "Rocket", "Guitar", "Kitten"];
-    const MAX_NUM = 100;
+    const tabs = document.querySelectorAll(".menu-item");
+    const pages = document.querySelectorAll(".main-content");
 
-    const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-    const randomNumber = Math.floor(Math.random() * MAX_NUM);
-    const myID = `${randomWord}-${randomNumber}`;
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
 
-    document.getElementById("peer-name").textContent = randomWord;
-    document.getElementById("peer-id").textContent = `#${randomNumber}`;
+        pages.forEach(page => page.classList.remove("active"));
+        document.getElementById(tab.dataset.tab).classList.add("active");
+      });
+    });
 
-    const peer = new Peer(myID);
+    const WORDS = ["Rocket", "Guitar", "Phoenix"];
+    const MAX_NUM = 10;
+    const myID = `${WORDS[Math.floor(Math.random() * WORDS.length)]}-${Math.floor(Math.random() * MAX_NUM)}`;
+
+    const deviceList = document.getElementById("deviceList");
+    let peer = new Peer(myID);
     let connections = [];
 
-    peer.on("open", (id) => {
-      console.log(`Connected as ${id}`);
+    peer.on("open", () => {
       discoverPeers();
     });
 
-    peer.on("connection", (conn) => {
+    peer.on("connection", conn => {
       handleIncomingConnection(conn);
     });
 
     function discoverPeers() {
       const possibleIDs = [];
-      WORDS.forEach((word) => {
+      WORDS.forEach(word => {
         for (let i = 0; i < MAX_NUM; i++) {
           const candidateID = `${word}-${i}`;
           if (candidateID !== myID) possibleIDs.push(candidateID);
         }
       });
 
-      possibleIDs.forEach((candidate) => {
+      possibleIDs.forEach(candidate => {
         const conn = peer.connect(candidate, { reliable: true });
         conn.on("open", () => handleIncomingConnection(conn));
       });
     }
 
     function handleIncomingConnection(conn) {
-      if (connections.some((c) => c.peer === conn.peer)) return;
+      if (connections.some(c => c.peer === conn.peer)) return;
 
       connections.push(conn);
       renderDiscoveredPeers();
-
-      conn.on("data", (data) => {
-        if (data.type === "file") receiveFile(data, conn.peer);
-      });
     }
 
     function renderDiscoveredPeers() {
-      const peerList = document.getElementById("peer-list");
-      peerList.innerHTML = "";
-      connections.forEach((conn) => {
+      deviceList.innerHTML = "";
+      connections.forEach(conn => {
         const div = document.createElement("div");
-        div.className = "peer";
-        div.textContent = conn.peer;
-        peerList.appendChild(div);
+        div.className = "device";
+        div.innerHTML = `<i class="fas fa-laptop"></i> ${conn.peer}`;
+        deviceList.appendChild(div);
       });
     }
-
-    document.getElementById("sendFileBtn").addEventListener("click", () => {
-      const file = document.getElementById("fileInput").files[0];
-      if (!file) return alert("Select a file first!");
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const fileData = { type: "file", fileName: file.name, fileBuffer: e.target.result };
-        connections.forEach((conn) => conn.send(fileData));
-        alert(`File "${file.name}" sent!`);
-      };
-      reader.readAsArrayBuffer(file);
-    });
-
-    function receiveFile(data, fromPeer) {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(new Blob([data.fileBuffer]));
-      link.download = data.fileName;
-      link.className = "download-link";
-      link.textContent = `Download "${data.fileName}" from ${fromPeer}`;
-      document.getElementById("incomingFiles").appendChild(link);
-    }
   </script>
-
 </body>
 </html>
