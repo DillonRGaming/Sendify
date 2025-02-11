@@ -1,146 +1,128 @@
-document.addEventListener("DOMContentLoaded", () => {
-    /***********************
-     * TAB NAVIGATION
-     ***********************/
-    document.querySelectorAll(".menu-item").forEach(tab => {
-        tab.addEventListener("click", () => {
-            document.querySelectorAll(".menu-item").forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sendify</title>
+  <!-- External Dependencies -->
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Fira+Code:wght@400;500&family=Inter:wght@400;500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
 
-            document.querySelectorAll(".main-content").forEach(page => page.classList.remove("active"));
-            document.getElementById(tab.dataset.tab).classList.add("active");
-        });
-    });
+<body class="theme-dark">
+  <!-- Hidden File Inputs -->
+  <input type="file" id="fileInput">
+  <input type="file" id="folderInput" webkitdirectory directory multiple>
 
-    /***********************
-     * THEME & SETTINGS
-     ***********************/
-    const themeSelect = document.getElementById("themeSelect");
-    const downloadLocationSelect = document.getElementById("downloadLocation");
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h1 class="section-title">Sendify</h1>
+    <div class="menu-item active" data-tab="receive">
+      <i class="fas fa-download"></i> Receive
+    </div>
+    <div class="menu-item" data-tab="send">
+      <i class="fas fa-paper-plane"></i> Send
+    </div>
+    <div class="menu-item" data-tab="settings">
+      <i class="fas fa-cog"></i> Settings
+    </div>
+    <div class="profile">
+      <div class="profile-info">
+        <i id="myDeviceIcon" class="fas fa-desktop"></i>
+        <strong class="profile-name" id="myIDDisplay"></strong>
+      </div>
+    </div>
+  </div>
 
-    function setTheme(theme) {
-        document.body.classList.remove("theme-dark", "theme-light", "theme-blue", "theme-solarized");
-        document.body.classList.add("theme-" + theme);
-    }
+  <!-- Receive Page -->
+  <div class="main-content active" id="receive">
+    <h2 class="section-title">Incoming Files & Messages</h2>
+    <button class="settings-select" id="clearReceivedBtn">Clear Received</button>
+    <div id="incomingList" class="incoming-list">
+      <p class="text-secondary">Waiting for incoming files/messages…</p>
+    </div>
+  </div>
 
-    themeSelect.addEventListener("change", (e) => {
-        setTheme(e.target.value);
-        localStorage.setItem("theme", e.target.value);
-    });
+  <!-- Send Page -->
+  <div class="main-content" id="send">
+    <h2 class="section-title">Selection</h2>
+    <div class="selection">
+      <div class="select-btn" id="fileBtn">
+        <i class="fas fa-file"></i> File
+      </div>
+      <div class="select-btn" id="folderBtn">
+        <i class="fas fa-folder"></i> Folder
+      </div>
+      <div class="select-btn" id="textBtn">
+        <i class="fas fa-font"></i> Text
+      </div>
+      <div class="select-btn" id="pasteBtn">
+        <i class="fas fa-clipboard"></i> Paste
+      </div>
+    </div>
 
-    /***********************
-     * PEERJS SETUP
-     ***********************/
-    const WORDS = ["Rocket", "Guitar", "Phoenix"];
-    const MAX_NUM = 10;
-    const myID = `${WORDS[Math.floor(Math.random() * WORDS.length)]}-${Math.floor(Math.random() * MAX_NUM)}`;
-    const peer = new Peer(myID, { host: "0.peerjs.com", port: 443, secure: true });
+    <div class="nearby">
+      <h2 class="section-title">Nearby Devices <i id="nearbyDeviceIcon" class="fas fa-desktop"></i></h2>
+      <div class="devices" id="deviceList">
+        <p class="text-secondary">No devices found</p>
+      </div>
+    </div>
 
-    let connections = [];
+    <div class="pending-section">
+      <h2 class="section-title">Pending Items</h2>
+      <div id="pendingItems" class="pending-items">
+        <p class="text-secondary">No pending items</p>
+      </div>
+    </div>
 
-    peer.on("open", () => {
-        document.getElementById("myIDDisplay").innerText = myID;
-        discoverPeers();
-    });
+    <div class="transfer-status">
+        <h2 class="section-title">Transfer Status</h2>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p id="transferInfo">Waiting to send...</p>
+        <p id="transferSpeed"></p>
+    </div>
+  </div>
 
-    peer.on("connection", (conn) => {
-        handleIncomingConnection(conn);
-    });
+  <!-- Settings Page -->
+  <div class="main-content" id="settings">
+    <h2 class="section-title">Settings</h2>
+    <div class="settings-group">
+      <label for="themeSelect">Theme:</label>
+      <select id="themeSelect" class="settings-select">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+        <option value="blue">Blue</option>
+      </select>
+    </div>
+    <div class="settings-group">
+      <label for="fontSelect">Font:</label>
+      <select id="fontSelect" class="settings-select">
+        <option value="Roboto">Roboto</option>
+        <option value="Inter">Inter</option>
+        <option value="Open Sans">Open Sans</option>
+      </select>
+    </div>
+    <div class="settings-group">
+      <label for="downloadLocation">Download Folder:</label>
+      <select id="downloadLocation" class="settings-select">
+        <option value="default">Default</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+  </div>
 
-    /***********************
-     * DISCOVER DEVICES
-     ***********************/
-    function discoverPeers() {
-        const possibleIDs = [];
-        WORDS.forEach(word => {
-            for (let i = 0; i < MAX_NUM; i++) {
-                if (`${word}-${i}` !== myID) possibleIDs.push(`${word}-${i}`);
-            }
-        });
-
-        possibleIDs.forEach(candidate => {
-            const conn = peer.connect(candidate, { reliable: true });
-            conn.on("open", () => handleIncomingConnection(conn));
-        });
-    }
-
-    function handleIncomingConnection(conn) {
-        if (connections.some(c => c.peer === conn.peer)) return;
-
-        conn.selected = false;
-        connections.push(conn);
-        conn.on("open", () => conn.send({ type: "handshake" }));
-
-        conn.on("data", (data) => {
-            if (data.type === "file-chunk") {
-                receiveFileChunk(conn.peer, data);
-            } else if (data.type === "text") {
-                displayIncomingText(conn.peer, data);
-            }
-        });
-
-        renderDiscoveredPeers();
-    }
-
-    function renderDiscoveredPeers() {
-        const deviceList = document.getElementById("deviceList");
-        deviceList.innerHTML = "";
-        if (connections.length === 0) {
-            deviceList.innerHTML = "<p class='text-secondary'>No devices found</p>"; // Use innerHTML for better structure
-            return;
-        }
-
-        connections.forEach(conn => {
-            const div = document.createElement("div");
-            div.className = "device" + (conn.selected ? " selected" : "");
-            div.innerHTML = `<span>${conn.peer}</span>`; // Use span for better semantic structure
-            div.addEventListener("click", () => {
-                conn.selected = !conn.selected;
-                renderDiscoveredPeers();
-            });
-            deviceList.appendChild(div);
-        });
-    }
-
-    /***********************
-     * FILE SELECTION
-     ***********************/
-    let pendingItems = [];
-
-    function updatePendingItemsUI() {
-        const pendingContainer = document.getElementById("pendingItems");
-        pendingContainer.innerHTML = pendingItems.length ? "" : "<p class='text-secondary'>No pending items</p>"; // Use innerHTML for better structure
-
-        pendingItems.forEach((item, index) => {
-            const div = document.createElement("div");
-            div.className = "pending-item";
-            div.innerHTML = `<i class="fas fa-file icon"></i> ${item.name}`; // Improved file display
-
-            const removeBtn = document.createElement("button");
-            removeBtn.className = "remove-btn";
-            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-            removeBtn.addEventListener("click", () => {
-                pendingItems.splice(index, 1);
-                updatePendingItemsUI();
-            });
-            div.appendChild(removeBtn);
-            pendingContainer.appendChild(div);
-        });
-    }
-
-    document.getElementById("fileBtn").addEventListener("click", () => document.getElementById("fileInput").click());
-
-    document.getElementById("fileInput").addEventListener("change", (event) => {
-        if (event.target.files.length) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                pendingItems.push({ type: "file", name: file.name, data: e.target.result });
-                updatePendingItemsUI();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // ... (rest of the code)
-});
+  <!-- Floating Send Button -->
+  <button id="sendAllBtn" title="Send All Pending Items">
+    Send
+  </button>
+  <script src="script.js"></script>
+</body>
+</html>
