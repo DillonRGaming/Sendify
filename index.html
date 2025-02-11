@@ -4,369 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sendify</title>
-  <!-- PeerJS and FontAwesome -->
+  <!-- External Dependencies -->
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
-  <style>
-    /* Base Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
-    /* Theme Base: we'll apply a class to the body (theme-dark, theme-light, theme-blue, theme-solarized) */
-    body.theme-dark {
-      background: #0F1B1E;
-      color: #eee;
-    }
-    body.theme-dark .sidebar {
-      background: #081416;
-    }
-    body.theme-dark .menu-item:hover,
-    body.theme-dark .menu-item.active {
-      background: #1B2A2D;
-    }
-    body.theme-dark .main-content {
-      background: #0F1B1E;
-    }
-    body.theme-dark .devices {
-      background: #1B2A2D;
-    }
-    body.theme-dark .device {
-      background: #2D3D40;
-    }
-    body.theme-dark .select-btn {
-      background: #1B2A2D;
-    }
-    body.theme-dark .incoming-item {
-      background: #1B2A2D;
-    }
-
-    body.theme-light {
-      background: #f0f0f0;
-      color: #333;
-    }
-    body.theme-light .sidebar {
-      background: #ddd;
-    }
-    body.theme-light .menu-item:hover,
-    body.theme-light .menu-item.active {
-      background: #ccc;
-    }
-    body.theme-light .main-content {
-      background: #f9f9f9;
-    }
-    body.theme-light .devices {
-      background: #ccc;
-    }
-    body.theme-light .device {
-      background: #bbb;
-    }
-    body.theme-light .select-btn {
-      background: #ccc;
-    }
-    body.theme-light .incoming-item {
-      background: #ddd;
-    }
-
-    body.theme-blue {
-      background: #001f3f;
-      color: #ddd;
-    }
-    body.theme-blue .sidebar {
-      background: #001933;
-    }
-    body.theme-blue .menu-item {
-      color: #ddd;
-    }
-    body.theme-blue .menu-item:hover,
-    body.theme-blue .menu-item.active {
-      background: #003366;
-    }
-    body.theme-blue .main-content {
-      background: #001f3f;
-    }
-    body.theme-blue .devices {
-      background: #003366;
-    }
-    body.theme-blue .device {
-      background: #00284d;
-    }
-    body.theme-blue .select-btn {
-      background: #003366;
-    }
-    body.theme-blue .incoming-item {
-      background: #003366;
-    }
-
-    body.theme-solarized {
-      background: #fdf6e3;
-      color: #657b83;
-    }
-    body.theme-solarized .sidebar {
-      background: #eee8d5;
-    }
-    body.theme-solarized .menu-item {
-      color: #657b83;
-    }
-    body.theme-solarized .menu-item:hover,
-    body.theme-solarized .menu-item.active {
-      background: #93a1a1;
-    }
-    body.theme-solarized .main-content {
-      background: #fdf6e3;
-    }
-    body.theme-solarized .devices {
-      background: #eee8d5;
-    }
-    body.theme-solarized .device {
-      background: #93a1a1;
-      color: #073642;
-    }
-    body.theme-solarized .select-btn {
-      background: #93a1a1;
-      color: #073642;
-    }
-    body.theme-solarized .incoming-item {
-      background: #eee8d5;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 250px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .sidebar h1 {
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-      font-size: 16px;
-    }
-    .menu-item i {
-      font-size: 18px;
-    }
-    .menu-item.active {
-      font-weight: bold;
-    }
-    /* Profile display in sidebar */
-    .profile {
-      margin-top: auto;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.2);
-      font-size: 14px;
-      text-align: center;
-    }
-
-    /* Main Content Areas */
-    .main-content {
-      flex-grow: 1;
-      padding: 30px;
-      display: none;
-      overflow-y: auto;
-    }
-    .main-content.active {
-      display: block;
-    }
-    .section-title {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    /* Selection Buttons */
-    .selection {
-      display: flex;
-      gap: 15px;
-      margin-top: 10px;
-    }
-    .select-btn {
-      padding: 20px;
-      border-radius: 10px;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .select-btn i {
-      font-size: 18px;
-    }
-
-    /* Devices List (Send page) */
-    .nearby {
-      margin-top: 20px;
-    }
-    .devices {
-      padding: 15px;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-    .device {
-      padding: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .device.selected {
-      font-weight: bold;
-    }
-    .device .device-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .device .device-name {
-      font-size: 16px;
-    }
-    .device .device-right i {
-      font-size: 18px;
-    }
-
-    /* Pending Items (Send page) */
-    .pending-section {
-      margin-top: 20px;
-    }
-    .pending-items {
-      padding: 15px;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: 50px;
-    }
-    .pending-item {
-      padding: 10px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .pending-item span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .pending-item .remove-btn {
-      background: none;
-      border: none;
-      color: #ff4d4d;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    /* Incoming Items (Receive page) */
-    .incoming-list {
-      margin-top: 15px;
-    }
-    .incoming-item {
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .incoming-item .info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 15px;
-    }
-    .incoming-item .info i {
-      font-size: 16px;
-    }
-    .incoming-item .actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .incoming-item a {
-      color: inherit;
-      text-decoration: none;
-      font-size: 16px;
-    }
-    /* Clear Received Button */
-    .clear-btn {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-bottom: 15px;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
-
-    /* Settings Page */
-    .settings-group {
-      margin-bottom: 20px;
-    }
-    .settings-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    select {
-      width: 100%;
-      padding: 8px;
-      border: none;
-      border-radius: 6px;
-      outline: none;
-      font-size: 16px;
-    }
-
-    /* Floating Send Button */
-    #sendAllBtn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #00E0A5;
-      border: none;
-      color: #fff;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      transition: background 0.3s;
-    }
-    #sendAllBtn:hover {
-      background: #00c38a;
-    }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Fira+Code:wght@400;500&family=Inter:wght@400;500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="theme-dark">
-  <!-- Hidden file inputs for file/folder selection -->
-  <input type="file" id="fileInput" style="display: none;" />
-  <input type="file" id="folderInput" style="display: none;" webkitdirectory directory multiple />
+  <!-- Hidden File Inputs -->
+  <input type="file" id="fileInput" />
+  <input type="file" id="folderInput" webkitdirectory directory multiple />
 
   <!-- Sidebar -->
   <div class="sidebar">
-    <h1>Sendify</h1>
+    <h1 class="section-title">Sendify</h1>
     <div class="menu-item active" data-tab="receive">
       <i class="fas fa-download"></i> Receive
     </div>
@@ -376,19 +32,23 @@
     <div class="menu-item" data-tab="settings">
       <i class="fas fa-cog"></i> Settings
     </div>
-    <!-- Your own ID (profile) is shown at the bottom -->
     <div class="profile">
-      You are: <strong id="myIDDisplay"></strong>
+      <div class="profile-info">
+        <span>You are:</span>
+        <strong class="profile-name" id="myIDDisplay"></strong>
+      </div>
+      <div class="profile-device">
+        <i id="myDeviceIcon" class="fas"></i>
+      </div>
     </div>
   </div>
 
   <!-- Receive Page -->
   <div class="main-content active" id="receive">
     <h2 class="section-title">Incoming Files & Messages</h2>
-    <!-- Clear Received Items Button -->
-    <button class="clear-btn" id="clearReceivedBtn">Clear Received</button>
+    <button class="settings-select" id="clearReceivedBtn">Clear Received</button>
     <div id="incomingList" class="incoming-list">
-      <p>Waiting for incoming files/messages…</p>
+      <p class="text-secondary">Waiting for incoming files/messages…</p>
     </div>
   </div>
 
@@ -413,14 +73,14 @@
     <div class="nearby">
       <h2 class="section-title">Nearby Devices</h2>
       <div class="devices" id="deviceList">
-        (No devices found)
+        <p class="text-secondary">No devices found</p>
       </div>
     </div>
 
     <div class="pending-section">
       <h2 class="section-title">Pending Items</h2>
       <div id="pendingItems" class="pending-items">
-        (No pending items)
+        <p class="text-secondary">No pending items</p>
       </div>
     </div>
   </div>
@@ -430,334 +90,33 @@
     <h2 class="section-title">Settings</h2>
     <div class="settings-group">
       <label for="themeSelect">Theme:</label>
-      <select id="themeSelect">
+      <select id="themeSelect" class="settings-select">
         <option value="dark">Dark</option>
         <option value="light">Light</option>
         <option value="blue">Blue</option>
-        <option value="solarized">Solarized</option>
+      </select>
+    </div>
+    <div class="settings-group">
+      <label for="fontSelect">Font:</label>
+      <select id="fontSelect" class="settings-select">
+        <option value="Roboto">Roboto</option>
+        <option value="Inter">Inter</option>
+        <option value="Open Sans">Open Sans</option>
       </select>
     </div>
     <div class="settings-group">
       <label for="downloadLocation">Download Folder:</label>
-      <select id="downloadLocation">
+      <select id="downloadLocation" class="settings-select">
         <option value="default">Default</option>
         <option value="custom">Custom</option>
       </select>
     </div>
   </div>
 
-  <!-- Floating "Send All" Button -->
-  <button id="sendAllBtn" title="Send All Pending Items"><i class="fas fa-paper-plane"></i></button>
-
-  <script>
-    /***********************
-     * TAB NAVIGATION
-     ***********************/
-    const tabs = document.querySelectorAll(".menu-item");
-    const pages = document.querySelectorAll(".main-content");
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        tabs.forEach(t => t.classList.remove("active"));
-        tab.classList.add("active");
-        pages.forEach(page => page.classList.remove("active"));
-        document.getElementById(tab.dataset.tab).classList.add("active");
-      });
-    });
-
-    /***********************
-     * THEME & SETTINGS
-     ***********************/
-    const themeSelect = document.getElementById("themeSelect");
-    const downloadLocationSelect = document.getElementById("downloadLocation");
-    // On load, restore saved settings (default theme: dark)
-    window.addEventListener("load", () => {
-      const savedTheme = localStorage.getItem("theme") || "dark";
-      themeSelect.value = savedTheme;
-      setTheme(savedTheme);
-      const savedDownload = localStorage.getItem("downloadLocation") || "default";
-      downloadLocationSelect.value = savedDownload;
-      // Display your own ID in the sidebar
-      document.getElementById("myIDDisplay").innerText = myID;
-    });
-    themeSelect.addEventListener("change", (e) => {
-      setTheme(e.target.value);
-      localStorage.setItem("theme", e.target.value);
-    });
-    function setTheme(theme) {
-      document.body.classList.remove("theme-dark", "theme-light", "theme-blue", "theme-solarized");
-      document.body.classList.add("theme-" + theme);
-    }
-    downloadLocationSelect.addEventListener("change", (e) => {
-      const selection = e.target.value;
-      if (selection === "custom") {
-        const customFolder = prompt("Enter custom download folder name:", "MyDownloads");
-        if (customFolder) {
-          localStorage.setItem("downloadLocation", customFolder);
-          alert("Custom download folder set to: " + customFolder);
-        } else {
-          e.target.value = "default";
-          localStorage.setItem("downloadLocation", "default");
-        }
-      } else {
-        localStorage.setItem("downloadLocation", selection);
-      }
-    });
-
-    /***********************
-     * PEERJS & DEVICE DISCOVERY
-     ***********************/
-    const WORDS = ["Rocket", "Guitar", "Phoenix"];
-    const MAX_NUM = 10;
-    const myID = `${WORDS[Math.floor(Math.random() * WORDS.length)]}-${Math.floor(Math.random() * MAX_NUM)}`;
-    const peer = new Peer(myID);
-    let connections = [];
-    peer.on("open", () => {
-      console.log("My peer ID is:", myID);
-      discoverPeers();
-    });
-    peer.on("connection", conn => {
-      handleIncomingConnection(conn);
-    });
-    function discoverPeers() {
-      const possibleIDs = [];
-      WORDS.forEach(word => {
-        for (let i = 0; i < MAX_NUM; i++) {
-          const candidate = `${word}-${i}`;
-          if (candidate !== myID) possibleIDs.push(candidate);
-        }
-      });
-      possibleIDs.forEach(candidate => {
-        const conn = peer.connect(candidate, { reliable: true });
-        conn.on("open", () => handleIncomingConnection(conn));
-      });
-    }
-    // Returns a FontAwesome icon class based on device type.
-    function getDeviceIcon() {
-      const ua = navigator.userAgent;
-      if (/Mobile|Android|iP(hone|od)/.test(ua)) {
-        return "fa-mobile-alt";
-      } else if (/iPad|Tablet/.test(ua)) {
-        return "fa-tablet-alt";
-      } else {
-        return "fa-desktop";
-      }
-    }
-    function handleIncomingConnection(conn) {
-      if (connections.some(c => c.peer === conn.peer)) return;
-      conn.selected = false; // not selected by default
-      conn.device = "fa-desktop"; // default icon
-      connections.push(conn);
-      // On open, send our device info to the peer
-      conn.on("open", () => {
-        conn.send({ type: "handshake", device: getDeviceIcon() });
-      });
-      conn.on("data", data => {
-        if (data.type === "handshake") {
-          conn.device = data.device || "fa-desktop";
-          renderDiscoveredPeers();
-        } else if (data.type === "file") {
-          displayIncomingFile(conn.peer, data);
-        } else if (data.type === "text") {
-          displayIncomingText(conn.peer, data);
-        }
-      });
-      renderDiscoveredPeers();
-    }
-    function renderDiscoveredPeers() {
-      const deviceList = document.getElementById("deviceList");
-      deviceList.innerHTML = "";
-      if (connections.length === 0) {
-        deviceList.innerText = "(No devices found)";
-        return;
-      }
-      connections.forEach(conn => {
-        const div = document.createElement("div");
-        div.className = "device" + (conn.selected ? " selected" : "");
-        // Left side: check mark if selected and the device name.
-        const leftDiv = document.createElement("div");
-        leftDiv.className = "device-left";
-        if (conn.selected) {
-          const checkIcon = document.createElement("i");
-          checkIcon.className = "fas fa-check-circle";
-          leftDiv.appendChild(checkIcon);
-        }
-        const nameSpan = document.createElement("span");
-        nameSpan.className = "device-name";
-        nameSpan.innerText = conn.peer;
-        leftDiv.appendChild(nameSpan);
-        // Right side: display device type icon.
-        const rightDiv = document.createElement("div");
-        rightDiv.className = "device-right";
-        const deviceIcon = document.createElement("i");
-        deviceIcon.className = "fas " + (conn.device || "fa-desktop");
-        rightDiv.appendChild(deviceIcon);
-        div.appendChild(leftDiv);
-        div.appendChild(rightDiv);
-        div.addEventListener("click", () => {
-          conn.selected = !conn.selected;
-          renderDiscoveredPeers();
-        });
-        deviceList.appendChild(div);
-      });
-    }
-
-    /***********************
-     * PENDING ITEMS (QUEUE) & SENDING
-     ***********************/
-    let pendingItems = [];
-    function updatePendingItemsUI() {
-      const pendingContainer = document.getElementById("pendingItems");
-      pendingContainer.innerHTML = "";
-      if (pendingItems.length === 0) {
-        pendingContainer.innerText = "(No pending items)";
-        return;
-      }
-      pendingItems.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.className = "pending-item";
-        if (item.type === "file") {
-          div.innerHTML = `<i class="fas fa-file"></i> ${item.name}`;
-        } else if (item.type === "text") {
-          div.innerHTML = `<i class="fas fa-font"></i> ${item.message.substring(0, 20)}${item.message.length > 20 ? '...' : ''}`;
-        }
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "remove-btn";
-        removeBtn.innerHTML = "&times;";
-        removeBtn.addEventListener("click", () => {
-          pendingItems.splice(index, 1);
-          updatePendingItemsUI();
-        });
-        div.appendChild(removeBtn);
-        pendingContainer.appendChild(div);
-      });
-    }
-    // File/Folders are queued – they are added to pendingItems.
-    const fileBtn = document.getElementById("fileBtn");
-    const folderBtn = document.getElementById("folderBtn");
-    const textBtn = document.getElementById("textBtn");
-    const pasteBtn = document.getElementById("pasteBtn");
-    const fileInput = document.getElementById("fileInput");
-    const folderInput = document.getElementById("folderInput");
-    fileBtn.addEventListener("click", () => {
-      fileInput.value = "";
-      fileInput.click();
-    });
-    fileInput.addEventListener("change", () => {
-      const file = fileInput.files[0];
-      if (file) {
-        addFileToPending(file);
-      }
-    });
-    folderBtn.addEventListener("click", () => {
-      folderInput.value = "";
-      folderInput.click();
-    });
-    folderInput.addEventListener("change", () => {
-      const files = folderInput.files;
-      if (files.length > 0) {
-        Array.from(files).forEach(file => {
-          addFileToPending(file);
-        });
-      }
-    });
-    textBtn.addEventListener("click", () => {
-      const text = prompt("Enter text message:");
-      if (text && text.trim() !== "") {
-        pendingItems.push({ type: "text", message: text });
-        updatePendingItemsUI();
-      }
-    });
-    pasteBtn.addEventListener("click", () => {
-      const text = prompt("Paste your text:");
-      if (text && text.trim() !== "") {
-        pendingItems.push({ type: "text", message: text });
-        updatePendingItemsUI();
-      }
-    });
-    function addFileToPending(file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        pendingItems.push({ type: "file", name: file.name, data: e.target.result });
-        updatePendingItemsUI();
-      };
-      reader.readAsDataURL(file);
-    }
-    // When the floating "Send All" button is clicked, send every pending item to all selected devices.
-    const sendAllBtn = document.getElementById("sendAllBtn");
-    sendAllBtn.addEventListener("click", () => {
-      const selectedConns = connections.filter(conn => conn.selected);
-      if (selectedConns.length === 0) {
-        alert("Please select at least one device.");
-        return;
-      }
-      if (pendingItems.length === 0) {
-        alert("No pending items to send.");
-        return;
-      }
-      selectedConns.forEach(conn => {
-        pendingItems.forEach(item => {
-          conn.send(item);
-        });
-      });
-      pendingItems = [];
-      updatePendingItemsUI();
-    });
-
-    /***********************
-     * RECEIVING FILES & TEXT
-     ***********************/
-    // Helper: find connection info for a sender by peer ID.
-    function getSenderInfo(sender) {
-      const senderConn = connections.find(c => c.peer === sender);
-      return senderConn ? (senderConn.device || "fa-desktop") : "fa-desktop";
-    }
-    // Display an incoming file with info and (if image) a preview.
-    function displayIncomingFile(sender, data) {
-      const incomingContainer = document.getElementById("incomingList");
-      // Remove "Waiting..." text if present.
-      if (incomingContainer.firstChild && incomingContainer.firstChild.tagName === "P") {
-        incomingContainer.innerHTML = "";
-      }
-      const div = document.createElement("div");
-      div.className = "incoming-item";
-      const deviceIcon = getSenderInfo(sender);
-      div.innerHTML = `<div class="info"><i class="fas fa-file"></i> From <strong>${sender}</strong> <i class="fas ${deviceIcon}"></i> - <em>${data.name}</em></div>`;
-      const actionsDiv = document.createElement("div");
-      actionsDiv.className = "actions";
-      const downloadLink = document.createElement("a");
-      downloadLink.href = data.data; // data URL
-      downloadLink.download = data.name;
-      downloadLink.title = "Download";
-      downloadLink.innerHTML = '<i class="fas fa-download"></i>';
-      actionsDiv.appendChild(downloadLink);
-      div.appendChild(actionsDiv);
-      // If file is an image, add a preview thumbnail.
-      if (data.data.startsWith("data:image/")) {
-        const imgPreview = document.createElement("img");
-        imgPreview.src = data.data;
-        imgPreview.alt = "Image preview";
-        imgPreview.style.maxHeight = "100px";
-        imgPreview.style.marginTop = "10px";
-        div.appendChild(imgPreview);
-      }
-      incomingContainer.appendChild(div);
-    }
-    // Display incoming text messages.
-    function displayIncomingText(sender, data) {
-      const incomingContainer = document.getElementById("incomingList");
-      if (incomingContainer.firstChild && incomingContainer.firstChild.tagName === "P") {
-        incomingContainer.innerHTML = "";
-      }
-      const div = document.createElement("div");
-      div.className = "incoming-item";
-      const deviceIcon = getSenderInfo(sender);
-      div.innerHTML = `<div class="info"><i class="fas fa-font"></i> From <strong>${sender}</strong> <i class="fas ${deviceIcon}"></i> - ${data.message}</div>`;
-      incomingContainer.appendChild(div);
-    }
-    // Clear Received Items button handler.
-    document.getElementById("clearReceivedBtn").addEventListener("click", () => {
-      document.getElementById("incomingList").innerHTML = "<p>Waiting for incoming files/messages…</p>";
-    });
-  </script>
+  <!-- Floating Send Button -->
+  <button id="sendAllBtn" title="Send All Pending Items">
+    Send
+  </button>
+  <script src="script.js"></script>
 </body>
 </html>
