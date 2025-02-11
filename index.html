@@ -1,26 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sendify</title>
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
   <style>
+    /* Base Styles */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Inter', sans-serif;
     }
-
     body {
       display: flex;
       height: 100vh;
       background: #0F1B1E;
       color: white;
+      transition: background 0.3s, color 0.3s;
     }
-
+    /* Light Theme Overrides */
+    body.light-theme {
+      background: #f0f0f0;
+      color: #333;
+    }
+    body.light-theme .sidebar {
+      background: #ddd;
+      color: #333;
+    }
+    body.light-theme .menu-item {
+      color: #333;
+    }
+    body.light-theme .menu-item:hover,
+    body.light-theme .menu-item.active {
+      background: #ccc;
+    }
+    body.light-theme .main-content {
+      background: #f9f9f9;
+      color: #333;
+    }
+    body.light-theme .devices {
+      background: #ccc;
+    }
+    body.light-theme .device {
+      background: #bbb;
+      color: #333;
+    }
+    body.light-theme .device:hover {
+      background: #aaa;
+    }
+    
+    /* Sidebar */
     .sidebar {
       width: 250px;
       background: #081416;
@@ -29,13 +61,11 @@
       flex-direction: column;
       gap: 20px;
     }
-
     .sidebar h1 {
       font-size: 22px;
       font-weight: bold;
       color: white;
     }
-
     .menu-item {
       display: flex;
       align-items: center;
@@ -47,38 +77,36 @@
       color: white;
       font-size: 16px;
     }
-
     .menu-item i {
       font-size: 18px;
     }
-
     .menu-item:hover,
     .menu-item.active {
       background: #1B2A2D;
     }
-
+    
+    /* Main Content Areas */
     .main-content {
       flex-grow: 1;
       padding: 30px;
       display: none;
+      overflow-y: auto;
     }
-
     .main-content.active {
       display: block;
     }
-
     .section-title {
       font-size: 20px;
       font-weight: bold;
       margin-bottom: 10px;
     }
-
+    
+    /* Selection Buttons */
     .selection {
       display: flex;
       gap: 15px;
       margin-top: 10px;
     }
-
     .select-btn {
       background: #1B2A2D;
       color: white;
@@ -93,19 +121,17 @@
       transition: background 0.3s ease;
       flex: 1;
     }
-
     .select-btn:hover {
       background: #2D3D40;
     }
-
     .select-btn i {
       font-size: 18px;
     }
-
+    
+    /* Devices List */
     .nearby {
       margin-top: 20px;
     }
-
     .devices {
       background: #1B2A2D;
       padding: 15px;
@@ -116,7 +142,6 @@
       max-height: 150px;
       overflow-y: auto;
     }
-
     .device {
       background: #2D3D40;
       padding: 12px;
@@ -127,28 +152,27 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-
     .device:hover {
       background: #00E0A5;
       color: black;
     }
-
-    .device i {
-      font-size: 18px;
+    .device input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
     }
-
+    
+    /* Settings */
     .settings-group {
       margin-top: 20px;
       padding: 15px;
       background: #1B2A2D;
       border-radius: 8px;
     }
-
     .settings-group label {
       display: block;
       margin-bottom: 5px;
     }
-
     select {
       width: 100%;
       padding: 8px;
@@ -158,32 +182,67 @@
       color: white;
       outline: none;
     }
+    
+    /* Incoming Files/Texts */
+    .incoming-list {
+      margin-top: 15px;
+    }
+    .incoming-item {
+      background: #1B2A2D;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .incoming-item a {
+      color: #00E0A5;
+      text-decoration: none;
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
+  <!-- Hidden Inputs for File/Folder Selection -->
+  <input type="file" id="fileInput" style="display: none;" />
+  <input type="file" id="folderInput" style="display: none;" webkitdirectory directory multiple />
 
   <!-- Sidebar -->
   <div class="sidebar">
     <h1>Sendify</h1>
-    <div class="menu-item active" data-tab="receive"><i class="fas fa-download"></i> Receive</div>
-    <div class="menu-item" data-tab="send"><i class="fas fa-paper-plane"></i> Send</div>
-    <div class="menu-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</div>
+    <div class="menu-item active" data-tab="receive">
+      <i class="fas fa-download"></i> Receive
+    </div>
+    <div class="menu-item" data-tab="send">
+      <i class="fas fa-paper-plane"></i> Send
+    </div>
+    <div class="menu-item" data-tab="settings">
+      <i class="fas fa-cog"></i> Settings
+    </div>
   </div>
 
   <!-- Receive Page -->
   <div class="main-content active" id="receive">
-    <h2 class="section-title">Incoming Files</h2>
-    <p>Waiting for incoming files...</p>
+    <h2 class="section-title">Incoming Files & Messages</h2>
+    <p>Waiting for incoming files/messages...</p>
+    <div id="incomingFilesList" class="incoming-list"></div>
+    <div id="incomingTextList" class="incoming-list"></div>
   </div>
 
   <!-- Send Page -->
   <div class="main-content" id="send">
     <h2 class="section-title">Selection</h2>
     <div class="selection">
-      <div class="select-btn" id="fileBtn"><i class="fas fa-file"></i> File</div>
-      <div class="select-btn" id="folderBtn"><i class="fas fa-folder"></i> Folder</div>
-      <div class="select-btn" id="textBtn"><i class="fas fa-align-left"></i> Text</div>
-      <div class="select-btn" id="pasteBtn"><i class="fas fa-clipboard"></i> Paste</div>
+      <div class="select-btn" id="fileBtn">
+        <i class="fas fa-file"></i> File
+      </div>
+      <div class="select-btn" id="folderBtn">
+        <i class="fas fa-folder"></i> Folder
+      </div>
+      <div class="select-btn" id="textBtn">
+        <i class="fas fa-align-left"></i> Text
+      </div>
+      <div class="select-btn" id="pasteBtn">
+        <i class="fas fa-clipboard"></i> Paste
+      </div>
     </div>
 
     <div class="nearby">
@@ -202,7 +261,6 @@
         <option value="light">Light</option>
       </select>
     </div>
-    
     <div class="settings-group">
       <label for="downloadLocation">Download Folder:</label>
       <select id="downloadLocation">
@@ -213,28 +271,32 @@
   </div>
 
   <script>
+    /***********************
+     * Tab Navigation
+     ***********************/
     const tabs = document.querySelectorAll(".menu-item");
     const pages = document.querySelectorAll(".main-content");
-
     tabs.forEach(tab => {
       tab.addEventListener("click", () => {
         tabs.forEach(t => t.classList.remove("active"));
         tab.classList.add("active");
-
         pages.forEach(page => page.classList.remove("active"));
         document.getElementById(tab.dataset.tab).classList.add("active");
       });
     });
 
+    /***********************
+     * PeerJS & Discovery
+     ***********************/
     const WORDS = ["Rocket", "Guitar", "Phoenix"];
     const MAX_NUM = 10;
     const myID = `${WORDS[Math.floor(Math.random() * WORDS.length)]}-${Math.floor(Math.random() * MAX_NUM)}`;
-
     const deviceList = document.getElementById("deviceList");
     let peer = new Peer(myID);
-    let connections = [];
+    let connections = []; // Each connection may have a custom property "selected"
 
     peer.on("open", () => {
+      console.log("My peer ID is: " + myID);
       discoverPeers();
     });
 
@@ -242,6 +304,7 @@
       handleIncomingConnection(conn);
     });
 
+    // Try to connect to all possible IDs (except our own)
     function discoverPeers() {
       const possibleIDs = [];
       WORDS.forEach(word => {
@@ -250,28 +313,224 @@
           if (candidateID !== myID) possibleIDs.push(candidateID);
         }
       });
-
       possibleIDs.forEach(candidate => {
         const conn = peer.connect(candidate, { reliable: true });
         conn.on("open", () => handleIncomingConnection(conn));
       });
     }
 
+    // Register a connection if not already present, and attach data listener.
     function handleIncomingConnection(conn) {
       if (connections.some(c => c.peer === conn.peer)) return;
+      conn.selected = false; // default unselected
       connections.push(conn);
+      // Listen for incoming data
+      conn.on("data", data => {
+        if (data && data.type === "file") {
+          displayIncomingFile(conn.peer, data);
+        } else if (data && data.type === "text") {
+          displayIncomingText(conn.peer, data);
+        }
+      });
       renderDiscoveredPeers();
     }
 
+    // Render the list of discovered peers with a checkbox for selection.
     function renderDiscoveredPeers() {
       deviceList.innerHTML = "";
+      if (connections.length === 0) {
+        deviceList.innerText = "(No devices found)";
+        return;
+      }
       connections.forEach(conn => {
         const div = document.createElement("div");
         div.className = "device";
-        div.innerHTML = `<i class="fas fa-laptop"></i> ${conn.peer}`;
+        
+        // Create checkbox element
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = !!conn.selected;
+        // Prevent click from bubbling so that the container event can handle toggle uniformly.
+        checkbox.addEventListener("click", (e) => {
+          e.stopPropagation();
+          conn.selected = checkbox.checked;
+        });
+        
+        // Display the peer name
+        const label = document.createElement("span");
+        label.innerText = conn.peer;
+        
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        // Toggle selection when clicking on the device container.
+        div.addEventListener("click", () => {
+          conn.selected = !conn.selected;
+          checkbox.checked = conn.selected;
+        });
         deviceList.appendChild(div);
       });
     }
+
+    /***********************
+     * Sending Functions
+     ***********************/
+    // Get references to the send buttons and hidden inputs.
+    const fileBtn = document.getElementById("fileBtn");
+    const folderBtn = document.getElementById("folderBtn");
+    const textBtn = document.getElementById("textBtn");
+    const pasteBtn = document.getElementById("pasteBtn");
+    const fileInput = document.getElementById("fileInput");
+    const folderInput = document.getElementById("folderInput");
+
+    // File sending: trigger file picker when fileBtn is clicked.
+    fileBtn.addEventListener("click", () => {
+      fileInput.value = "";
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      // Get all selected connections
+      const selectedConns = connections.filter(conn => conn.selected);
+      if (selectedConns.length === 0) {
+        alert("Please select at least one device to send the file.");
+        return;
+      }
+      selectedConns.forEach(conn => {
+        // Send an object containing the file's name and the file (Blob)
+        conn.send({ type: "file", name: file.name, data: file });
+      });
+      alert(`Sending "${file.name}" to ${selectedConns.length} device(s).`);
+    });
+
+    // Folder sending: if supported by browser, use folderInput (webkitdirectory)
+    folderBtn.addEventListener("click", () => {
+      folderInput.value = "";
+      folderInput.click();
+    });
+
+    folderInput.addEventListener("change", () => {
+      const files = folderInput.files;
+      if (!files || files.length === 0) return;
+      const selectedConns = connections.filter(conn => conn.selected);
+      if (selectedConns.length === 0) {
+        alert("Please select at least one device to send the folder.");
+        return;
+      }
+      // For simplicity, send each file individually.
+      Array.from(files).forEach(file => {
+        selectedConns.forEach(conn => {
+          conn.send({ type: "file", name: file.name, data: file });
+        });
+      });
+      alert(`Sending folder with ${files.length} file(s) to ${selectedConns.length} device(s).`);
+    });
+
+    // Text sending: prompt for text then send.
+    textBtn.addEventListener("click", () => {
+      const text = prompt("Enter the text message to send:");
+      if (!text) return;
+      const selectedConns = connections.filter(conn => conn.selected);
+      if (selectedConns.length === 0) {
+        alert("Please select at least one device to send the text.");
+        return;
+      }
+      selectedConns.forEach(conn => {
+        conn.send({ type: "text", message: text });
+      });
+      alert(`Sent text message to ${selectedConns.length} device(s).`);
+    });
+
+    // Paste sending: for demonstration, similar to text.
+    pasteBtn.addEventListener("click", () => {
+      const text = prompt("Paste your text here:");
+      if (!text) return;
+      const selectedConns = connections.filter(conn => conn.selected);
+      if (selectedConns.length === 0) {
+        alert("Please select at least one device to send the pasted text.");
+        return;
+      }
+      selectedConns.forEach(conn => {
+        conn.send({ type: "text", message: text });
+      });
+      alert(`Sent pasted text to ${selectedConns.length} device(s).`);
+    });
+
+    /***********************
+     * Receiving Functions
+     ***********************/
+    // Display an incoming file in the Receive page.
+    function displayIncomingFile(sender, data) {
+      const list = document.getElementById("incomingFilesList");
+      const fileItem = document.createElement("div");
+      fileItem.className = "incoming-item";
+      fileItem.innerHTML = `<strong>${sender}</strong> sent <em>${data.name}</em>`;
+      const downloadLink = document.createElement("a");
+      // Create a URL for the file blob
+      const url = URL.createObjectURL(data.data);
+      downloadLink.href = url;
+      downloadLink.download = data.name;
+      downloadLink.innerText = "Download";
+      fileItem.appendChild(downloadLink);
+      list.appendChild(fileItem);
+    }
+
+    // Display incoming text messages.
+    function displayIncomingText(sender, data) {
+      const list = document.getElementById("incomingTextList");
+      const textItem = document.createElement("div");
+      textItem.className = "incoming-item";
+      textItem.innerHTML = `<strong>${sender}</strong> says: ${data.message}`;
+      list.appendChild(textItem);
+    }
+
+    /***********************
+     * Settings Functions
+     ***********************/
+    const themeSelect = document.getElementById("themeSelect");
+    const downloadLocationSelect = document.getElementById("downloadLocation");
+
+    // Load saved settings from localStorage if available.
+    window.addEventListener("load", () => {
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      themeSelect.value = savedTheme;
+      if (savedTheme === "light") {
+        document.body.classList.add("light-theme");
+      } else {
+        document.body.classList.remove("light-theme");
+      }
+      const savedDownload = localStorage.getItem("downloadLocation") || "default";
+      downloadLocationSelect.value = savedDownload;
+    });
+
+    // Update theme setting
+    themeSelect.addEventListener("change", (e) => {
+      if (e.target.value === "light") {
+        document.body.classList.add("light-theme");
+      } else {
+        document.body.classList.remove("light-theme");
+      }
+      localStorage.setItem("theme", e.target.value);
+    });
+
+    // Update download location setting.
+    downloadLocationSelect.addEventListener("change", (e) => {
+      const selection = e.target.value;
+      if (selection === "custom") {
+        const customFolder = prompt("Enter custom download folder name:", "MyDownloads");
+        if (customFolder) {
+          localStorage.setItem("downloadLocation", customFolder);
+          alert("Custom download folder set to: " + customFolder);
+        } else {
+          // Revert to default if nothing is entered
+          e.target.value = "default";
+          localStorage.setItem("downloadLocation", "default");
+        }
+      } else {
+        localStorage.setItem("downloadLocation", selection);
+      }
+    });
   </script>
 </body>
 </html>
