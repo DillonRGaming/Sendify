@@ -78,6 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 displayIncomingText(conn.peer, data);
             }
         });
+        
+        // When the remote device’s page is closed, remove its connection.
+        conn.on("close", () => {
+            connections = connections.filter(c => c.peer !== conn.peer);
+            renderDiscoveredPeers();
+        });
 
         renderDiscoveredPeers();
     }
@@ -86,18 +92,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const deviceList = document.getElementById("deviceList");
         deviceList.innerHTML = "";
         if (connections.length === 0) {
-            deviceList.innerHTML = "<p class='text-secondary'>No devices found</p>"; // Use innerHTML for better structure
+            deviceList.innerText = "(No devices found)";
             return;
         }
 
         connections.forEach(conn => {
             const div = document.createElement("div");
             div.className = "device" + (conn.selected ? " selected" : "");
-            div.innerHTML = `<span>${conn.peer}</span>`; // Use span for better semantic structure
+
+            div.innerHTML = `<span>${conn.peer}</span>`;
             div.addEventListener("click", () => {
                 conn.selected = !conn.selected;
                 renderDiscoveredPeers();
             });
+
             deviceList.appendChild(div);
         });
     }
@@ -109,20 +117,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updatePendingItemsUI() {
         const pendingContainer = document.getElementById("pendingItems");
-        pendingContainer.innerHTML = pendingItems.length ? "" : "<p class='text-secondary'>No pending items</p>"; // Use innerHTML for better structure
+        pendingContainer.innerHTML = pendingItems.length ? "" : "(No pending items)";
 
         pendingItems.forEach((item, index) => {
             const div = document.createElement("div");
             div.className = "pending-item";
-            div.innerHTML = `<i class="fas fa-file icon"></i> ${item.name}`; // Improved file display
+            div.innerHTML = item.type === "file"
+                ? `<i class="fas fa-file icon"></i> ${item.name}`
+                : `<i class="fas fa-font icon"></i> ${item.message}`;
 
             const removeBtn = document.createElement("button");
-            removeBtn.className = "remove-btn";
-            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.innerText = "❌";
             removeBtn.addEventListener("click", () => {
                 pendingItems.splice(index, 1);
                 updatePendingItemsUI();
             });
+
             div.appendChild(removeBtn);
             pendingContainer.appendChild(div);
         });
@@ -142,5 +152,83 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ... (rest of the code)
+    /***********************
+     * FILE SENDING
+     ***********************/
+    document.getElementById("sendAllBtn").addEventListener("click", () => {
+        sendAll();
+    });
+
+    function sendAll() {
+        const selectedConns = connections.filter(conn => conn.selected);
+        if (!selectedConns.length) return alert("Select at least one device.");
+        if (!pendingItems.length) return alert("No files or messages to send.");
+
+        pendingItems.forEach(item => {
+            selectedConns.forEach(conn => {
+                sendFileChunks(conn, item);
+            });
+        });
+
+        pendingItems = [];
+        updatePendingItemsUI();
+    }
+
+    function sendFileChunks(conn, file) {
+        const chunkSize = 16 * 1024;
+        let offset = 0;
+
+        function sendNextChunk() {
+            if (offset < file.data.length) {
+                const chunk = file.data.slice(offset, offset + chunkSize);
+                conn.send({ type: "file-chunk", name: file.name, data: chunk, last: offset + chunkSize >= file.data.length });
+                offset += chunkSize;
+                setTimeout(sendNextChunk, 50);
+            }
+        }
+
+        sendNextChunk();
+    }
+
+    /***********************
+     * FILE RECEIVING
+     ***********************/
+    let receivedFiles = {};
+
+    function receiveFileChunk(sender, chunk) {
+        if (!receivedFiles[sender]) receivedFiles[sender] = { name: chunk.name, data: "" };
+        receivedFiles[sender].data += chunk.data;
+
+        if (chunk.last) {
+            displayIncomingFile(sender, { name: chunk.name, data: receivedFiles[sender].data });
+            delete receivedFiles[sender];
+        }
+    }
+
+    function displayIncomingFile(sender, data) {
+        const incomingContainer = document.getElementById("incomingList");
+        incomingContainer.innerHTML += `<div class="incoming-item"><i class="fas fa-file icon"></i> ${data.name} from ${sender} 
+            <a href="${data.data}" download="${data.name}">Download</a></div>`;
+    }
+
+    function displayIncomingText(sender, data) {
+        const div = document.createElement("div");
+        div.className = "incoming-item";
+        div.innerHTML = `<i class="fas fa-font icon"></i> "${data.message}" from ${sender}`;
+        document.getElementById("incomingList").appendChild(div);
+    }
+
+    document.getElementById("clearReceivedBtn").addEventListener("click", () => {
+        document.getElementById("incomingList").innerHTML = "<p>Waiting for incoming files/messages…</p>";
+    });
+
+    document.getElementById("myIDDisplay").innerText = myID;
+    
+    // Refresh the device list every second if no devices are selected,
+    // ensuring that closed devices are removed while new connections are still discovered.
+    setInterval(() => {
+        if (!connections.some(conn => conn.selected)) {
+            renderDiscoveredPeers();
+        }
+    }, 1000);
 });
