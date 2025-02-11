@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sendify</title>
-  <!-- PeerJS from CDN -->
+  <title>Sendify - ChatGPT UI</title>
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <style>
     /* Global Styles */
@@ -16,61 +15,94 @@
     }
 
     body {
-      background: #121212;
+      background: #1e1e1e;
       color: #e0e0e0;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
     }
 
-    h1 {
-      font-size: 36px;
-      color: #00e0a5;
-      margin-bottom: 20px;
-      animation: fadeIn 1s ease-out;
-    }
-
-    .container {
-      background: #1e1e1e;
-      border-radius: 12px;
-      padding: 20px 30px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-      max-width: 400px;
-      width: 100%;
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #252526;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      animation: fadeIn 1.2s ease-out;
+      gap: 15px;
+      border-right: 1px solid #333;
+    }
+
+    .sidebar h2 {
+      color: #fff;
+      margin-bottom: 15px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #bbb;
+      padding: 12px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .sidebar a:hover {
+      background-color: #333;
+      color: #fff;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex-grow: 1;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Box */
+    .box {
+      background: #2c2c2c;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: fadeIn 1s;
+    }
+
+    h1 {
+      color: #00e0a5;
+      font-size: 24px;
+      margin-bottom: 15px;
     }
 
     .section {
       display: flex;
       flex-direction: column;
       gap: 10px;
+      margin-bottom: 15px;
     }
 
     .section-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       color: #00e0a5;
     }
 
-    input[type="text"],
-    input[type="file"] {
+    input[type="text"], input[type="file"] {
       padding: 10px;
-      border: 1px solid #333;
       background: #252525;
+      border: 1px solid #444;
       border-radius: 6px;
       color: #fff;
       font-size: 14px;
-      outline: none;
-      transition: border-color 0.3s ease;
     }
 
     input[type="text"]:focus {
       border-color: #00e0a5;
+      outline: none;
     }
 
     button {
@@ -82,7 +114,7 @@
       color: #121212;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.2s ease, background 0.3s ease;
+      transition: transform 0.2s, background 0.3s;
     }
 
     button:hover {
@@ -100,29 +132,24 @@
       border-radius: 6px;
       font-size: 14px;
       color: #76ffa7;
-      animation: fadeIn 0.8s ease-out;
     }
 
-    .discovered-list {
-      max-height: 150px;
+    .peer-list {
+      max-height: 120px;
       overflow-y: auto;
       background: #252525;
       border-radius: 6px;
       padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      animation: fadeIn 1s ease-out;
     }
 
     .peer-item {
-      padding: 10px;
+      padding: 8px;
       background: #333;
       border-radius: 6px;
       color: #fff;
       font-size: 14px;
       cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
+      transition: background 0.3s, transform 0.2s;
     }
 
     .peer-item:hover {
@@ -132,12 +159,11 @@
     }
 
     .incoming-files {
-      max-height: 150px;
+      max-height: 120px;
       overflow-y: auto;
       background: #252525;
       border-radius: 6px;
       padding: 10px;
-      animation: fadeIn 1.2s ease-out;
     }
 
     a {
@@ -145,11 +171,10 @@
       text-decoration: underline;
     }
 
-    /* Animations */
     @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
       }
       to {
         opacity: 1;
@@ -159,141 +184,96 @@
   </style>
 </head>
 <body>
-  <h1>Sendify</h1>
-  <div class="container">
-    <!-- Status Section -->
-    <div class="section">
-      <div class="section-title">Your ID</div>
-      <div class="status-box" id="statusBox">Generating ID...</div>
-    </div>
 
-    <!-- Discovered Peers -->
-    <div class="section">
-      <div class="section-title">Discovered Peers</div>
-      <div class="discovered-list" id="discoveredList">(No peers yet)</div>
-    </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Sendify</h2>
+    <a href="#">📂 My Files</a>
+    <a href="#">📤 Upload</a>
+    <a href="#">⚙️ Settings</a>
+  </div>
 
-    <!-- File Transfer -->
-    <div class="section">
-      <div class="section-title">Send a File</div>
-      <input type="file" id="fileInput" />
-      <button id="sendFileBtn">Send File</button>
-    </div>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="box">
+      <h1>Sendify</h1>
 
-    <!-- Incoming Files -->
-    <div class="section">
-      <div class="section-title">Incoming Files</div>
-      <div class="incoming-files" id="incomingFiles">(No files received yet)</div>
+      <div class="section">
+        <div class="section-title">Your ID</div>
+        <div class="status-box" id="statusBox">Generating ID...</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Discovered Peers</div>
+        <div class="peer-list" id="peerList">(No peers yet)</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Send a File</div>
+        <input type="file" id="fileInput" />
+        <button id="sendFileBtn">Send File</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Incoming Files</div>
+        <div class="incoming-files" id="incomingFiles">(No files received yet)</div>
+      </div>
     </div>
   </div>
 
   <script>
-    const WORDS = ["Chicken", "Glass", "Rocket", "Guitar", "Kitten"];
-    const MAX_NUM = 10;
-
-    const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-    const randomNumber = Math.floor(Math.random() * MAX_NUM);
-    const myID = `${randomWord}-${randomNumber}`;
-
+    const peer = new Peer();
     const statusBox = document.getElementById("statusBox");
-    const discoveredList = document.getElementById("discoveredList");
+    const peerList = document.getElementById("peerList");
     const fileInput = document.getElementById("fileInput");
     const sendFileBtn = document.getElementById("sendFileBtn");
     const incomingFiles = document.getElementById("incomingFiles");
 
-    let peer = new Peer(myID);
     let connections = [];
 
-    statusBox.textContent = `Your ID: ${myID}`;
-
     peer.on("open", (id) => {
-      console.log(`Connected with ID: ${id}`);
-      discoverPeers();
+      statusBox.textContent = `Your ID: ${id}`;
+      console.log("Connected as", id);
     });
 
     peer.on("connection", (conn) => {
-      handleIncomingConnection(conn);
+      connections.push(conn);
+      updatePeerList();
+      conn.on("data", (data) => receiveFile(data, conn.peer));
     });
 
-    function discoverPeers() {
-      const possibleIDs = [];
-      WORDS.forEach((word) => {
-        for (let i = 0; i < MAX_NUM; i++) {
-          const candidateID = `${word}-${i}`;
-          if (candidateID !== myID) {
-            possibleIDs.push(candidateID);
-          }
-        }
-      });
-
-      possibleIDs.forEach((candidate) => {
-        const conn = peer.connect(candidate, { reliable: true });
-        conn.on("open", () => handleIncomingConnection(conn));
-      });
-    }
-
-    function handleIncomingConnection(conn) {
-      if (connections.some((c) => c.peer === conn.peer)) return;
-
-      connections.push(conn);
-      renderDiscoveredPeers();
-
-      conn.on("data", (data) => {
-        if (data.type === "file") receiveFile(data, conn.peer);
-      });
-    }
-
-    function renderDiscoveredPeers() {
-      discoveredList.innerHTML = "";
-      connections.forEach((conn) => {
-        const div = document.createElement("div");
+    function updatePeerList() {
+      peerList.innerHTML = "";
+      connections.forEach(conn => {
+        let div = document.createElement("div");
         div.className = "peer-item";
         div.textContent = conn.peer;
-        discoveredList.appendChild(div);
+        peerList.appendChild(div);
       });
     }
 
     sendFileBtn.addEventListener("click", () => {
-      const file = fileInput.files[0];
-      if (!file) {
-        alert("Please select a file first.");
-        return;
-      }
+      let file = fileInput.files[0];
+      if (!file) return alert("Select a file first!");
 
-      const reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function (e) {
-        const arrayBuffer = e.target.result;
-        const fileData = {
-          type: "file",
-          fileName: file.name,
-          fileBuffer: arrayBuffer,
-        };
-        broadcastData(fileData);
-        alert(`File "${file.name}" sent to discovered peers.`);
+        let data = { fileName: file.name, fileBuffer: e.target.result };
+        connections.forEach(conn => conn.send(data));
+        alert(`File "${file.name}" sent!`);
       };
       reader.readAsArrayBuffer(file);
     });
 
-    function broadcastData(data) {
-      connections.forEach((conn) => {
-        if (conn.open) {
-          conn.send(data);
-        }
-      });
-    }
-
     function receiveFile(data, fromPeer) {
-      const blob = new Blob([data.fileBuffer]);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
+      let blob = new Blob([data.fileBuffer]);
+      let link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
       link.download = data.fileName;
       link.textContent = `Download "${data.fileName}" from ${fromPeer}`;
       incomingFiles.appendChild(link);
-
-      const br = document.createElement("br");
-      incomingFiles.appendChild(br);
     }
   </script>
+
 </body>
 </html>
