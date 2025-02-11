@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sendify - LocalSend UI</title>
+  <title>Sendify</title>
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
   <style>
@@ -40,11 +40,12 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease;
       color: white;
+      font-size: 16px;
     }
 
     .menu-item i {
@@ -66,21 +67,31 @@
       display: block;
     }
 
+    .section-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
     .selection {
       display: flex;
-      gap: 10px;
+      gap: 15px;
+      margin-top: 10px;
     }
 
     .select-btn {
       background: #1B2A2D;
       color: white;
-      padding: 15px;
-      border-radius: 8px;
+      padding: 20px;
+      border-radius: 10px;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 16px;
       cursor: pointer;
       transition: background 0.3s ease;
+      flex: 1;
     }
 
     .select-btn:hover {
@@ -88,7 +99,7 @@
     }
 
     .select-btn i {
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .nearby {
@@ -108,8 +119,8 @@
 
     .device {
       background: #2D3D40;
-      padding: 10px;
-      border-radius: 6px;
+      padding: 12px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -126,15 +137,26 @@
       font-size: 18px;
     }
 
-    .troubleshoot {
+    .settings-group {
       margin-top: 20px;
-      text-align: center;
-      color: #00E0A5;
-      cursor: pointer;
+      padding: 15px;
+      background: #1B2A2D;
+      border-radius: 8px;
     }
 
-    .troubleshoot:hover {
-      text-decoration: underline;
+    .settings-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    select {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: #2D3D40;
+      color: white;
+      outline: none;
     }
   </style>
 </head>
@@ -142,21 +164,21 @@
 
   <!-- Sidebar -->
   <div class="sidebar">
-    <h1>LocalSend</h1>
-    <div class="menu-item active" data-tab="receive"><i class="fas fa-wifi"></i> Receive</div>
-    <div class="menu-item" data-tab="send"><i class="fas fa-play"></i> Send</div>
+    <h1>Sendify</h1>
+    <div class="menu-item active" data-tab="receive"><i class="fas fa-download"></i> Receive</div>
+    <div class="menu-item" data-tab="send"><i class="fas fa-paper-plane"></i> Send</div>
     <div class="menu-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</div>
   </div>
 
   <!-- Receive Page -->
   <div class="main-content active" id="receive">
-    <h2>Receive Files</h2>
+    <h2 class="section-title">Incoming Files</h2>
     <p>Waiting for incoming files...</p>
   </div>
 
   <!-- Send Page -->
   <div class="main-content" id="send">
-    <h2>Selection</h2>
+    <h2 class="section-title">Selection</h2>
     <div class="selection">
       <div class="select-btn" id="fileBtn"><i class="fas fa-file"></i> File</div>
       <div class="select-btn" id="folderBtn"><i class="fas fa-folder"></i> Folder</div>
@@ -165,17 +187,29 @@
     </div>
 
     <div class="nearby">
-      <h3>Nearby devices</h3>
+      <h2 class="section-title">Nearby Devices</h2>
       <div class="devices" id="deviceList">(No devices found)</div>
     </div>
-
-    <div class="troubleshoot">Troubleshoot</div>
   </div>
 
   <!-- Settings Page -->
   <div class="main-content" id="settings">
-    <h2>Settings</h2>
-    <p>Settings coming soon...</p>
+    <h2 class="section-title">Settings</h2>
+    <div class="settings-group">
+      <label for="themeSelect">Theme:</label>
+      <select id="themeSelect">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+    </div>
+    
+    <div class="settings-group">
+      <label for="downloadLocation">Download Folder:</label>
+      <select id="downloadLocation">
+        <option value="default">Default</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
   </div>
 
   <script>
@@ -225,7 +259,6 @@
 
     function handleIncomingConnection(conn) {
       if (connections.some(c => c.peer === conn.peer)) return;
-
       connections.push(conn);
       renderDiscoveredPeers();
     }
