@@ -395,38 +395,3 @@ input[type="file"] {
 #myDeviceIcon path {
   fill: var(--my-device-icon-color);
 }
-
-.stored-files {
-  background: var(--bg-tertiary);
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-.stored-file {
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: background 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.stored-file:last-child {
-  margin-bottom: 0;
-}
-
-.stored-file-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.stored-files-container {
-  margin-bottom: 20px;
-}
-

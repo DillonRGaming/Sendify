@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sendify</title>
-  <!-- External Dependencies -->
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -16,11 +15,9 @@
 </head>
 
 <body class="theme-dark">
-  <!-- Hidden File Inputs -->
   <input type="file" id="fileInput">
   <input type="file" id="folderInput" webkitdirectory directory multiple>
 
-  <!-- Sidebar -->
   <div class="sidebar">
     <h1 class="section-title">Sendify</h1>
     <div class="menu-item active" data-tab="receive">
@@ -28,9 +25,6 @@
     </div>
     <div class="menu-item" data-tab="send">
       <i class="fas fa-paper-plane"></i> Send
-    </div>
-    <div class="menu-item" data-tab="storage">
-      <i class="fas fa-hdd"></i> Storage
     </div>
     <div class="menu-item" data-tab="settings">
       <i class="fas fa-cog"></i> Settings
@@ -43,7 +37,6 @@
     </div>
   </div>
 
-  <!-- Receive Page -->
   <div class="main-content active" id="receive">
     <h2 class="section-title">Incoming Files & Messages</h2>
     <button class="settings-select" id="clearReceivedBtn">Clear Received</button>
@@ -52,7 +45,6 @@
     </div>
   </div>
 
-  <!-- Send Page -->
   <div class="main-content" id="send">
     <h2 class="section-title">Selection</h2>
     <div class="selection">
@@ -85,30 +77,6 @@
     </div>
   </div>
 
-    <!-- Storage Page -->
-    <div class="main-content" id="storage">
-        <h2 class="section-title">Stored Files</h2>
-        <div class="selection">
-            <div class="select-btn" id="storageFileBtn">
-                <i class="fas fa-file"></i> File
-            </div>
-            <div class="select-btn" id="storageFolderBtn">
-                <i class="fas fa-folder"></i> Folder
-            </div>
-            <div class="select-btn" id="storageTextBtn">
-                <i class="fas fa-font"></i> Text
-            </div>
-            <div class="select-btn" id="storagePasteBtn">
-                <i class="fas fa-clipboard"></i> Paste
-            </div>
-        </div>
-        <input type="file" id="storageFileInput">
-        <div id="storedFiles" class="stored-files">
-          <p class="text-secondary">No files stored</p>
-        </div>
-    </div>
-
-  <!-- Settings Page -->
   <div class="main-content" id="settings">
     <h2 class="section-title">Settings</h2>
     <div class="settings-group">
@@ -136,7 +104,6 @@
     </div>
   </div>
 
-  <!-- Floating Send Button -->
   <button id="sendAllBtn" title="Send All Pending Items">
     Send
   </button>

@@ -1,22 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-    /***********************
-     * TAB NAVIGATION
-     ***********************/
     document.querySelectorAll(".menu-item").forEach(tab => {
         tab.addEventListener("click", () => {
             document.querySelectorAll(".menu-item").forEach(t => t.classList.remove("active"));
             tab.classList.add("active");
-
             document.querySelectorAll(".main-content").forEach(page => page.classList.remove("active"));
             document.getElementById(tab.dataset.tab).classList.add("active");
         });
     });
 
-    /***********************
-     * THEME & SETTINGS
-     ***********************/
     const themeSelect = document.getElementById("themeSelect");
-    const downloadLocationSelect = document.getElementById("downloadLocation");
 
     function setTheme(theme) {
         document.body.classList.remove("theme-dark", "theme-light", "theme-blue", "theme-solarized");
@@ -28,9 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("theme", e.target.value);
     });
 
-    /***********************
-     * PEERJS SETUP
-     ***********************/
     const WORDS = ["Rocket", "Guitar", "Phoenix"];
     const MAX_NUM = 10;
     const myID = `${WORDS[Math.floor(Math.random() * WORDS.length)]}-${Math.floor(Math.random() * MAX_NUM)}`;
@@ -47,9 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
         handleIncomingConnection(conn);
     });
 
-    /***********************
-     * DISCOVER DEVICES
-     ***********************/
     function discoverPeers() {
         const possibleIDs = [];
         WORDS.forEach(word => {
@@ -66,73 +52,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function handleIncomingConnection(conn) {
         if (connections.some(c => c.peer === conn.peer)) return;
-
         conn.selected = false;
         connections.push(conn);
         conn.on("open", () => conn.send({ type: "handshake" }));
-
         conn.on("data", (data) => {
-            if (data.type === "file-chunk") {
-                receiveFileChunk(conn.peer, data);
-            } else if (data.type === "text") {
-                displayIncomingText(conn.peer, data);
-            }
+            if (data.type === "file-chunk") receiveFileChunk(conn.peer, data);
+            else if (data.type === "text") displayIncomingText(conn.peer, data);
         });
-        
-        // When the remote device’s page is closed, remove its connection.
         conn.on("close", () => {
             connections = connections.filter(c => c.peer !== conn.peer);
             renderDiscoveredPeers();
         });
-
         renderDiscoveredPeers();
     }
 
     function renderDiscoveredPeers() {
         const deviceList = document.getElementById("deviceList");
         deviceList.innerHTML = "";
-        if (connections.length === 0) {
+        if (!connections.length) {
             deviceList.innerText = "(No devices found)";
             return;
         }
-
         connections.forEach(conn => {
             const div = document.createElement("div");
             div.className = "device" + (conn.selected ? " selected" : "");
-
             div.innerHTML = `<span>${conn.peer}</span>`;
             div.addEventListener("click", () => {
                 conn.selected = !conn.selected;
                 renderDiscoveredPeers();
             });
-
             deviceList.appendChild(div);
         });
     }
 
-    /***********************
-     * FILE SELECTION
-     ***********************/
     let pendingItems = [];
 
     function updatePendingItemsUI() {
         const pendingContainer = document.getElementById("pendingItems");
         pendingContainer.innerHTML = pendingItems.length ? "" : "(No pending items)";
-
         pendingItems.forEach((item, index) => {
             const div = document.createElement("div");
             div.className = "pending-item";
             div.innerHTML = item.type === "file"
                 ? `<i class="fas fa-file icon"></i> ${item.name}`
                 : `<i class="fas fa-font icon"></i> ${item.message}`;
-
             const removeBtn = document.createElement("button");
             removeBtn.innerText = "❌";
             removeBtn.addEventListener("click", () => {
                 pendingItems.splice(index, 1);
                 updatePendingItemsUI();
             });
-
             div.appendChild(removeBtn);
             pendingContainer.appendChild(div);
         });
@@ -152,9 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    /***********************
-     * FILE SENDING
-     ***********************/
     document.getElementById("sendAllBtn").addEventListener("click", () => {
         sendAll();
     });
@@ -163,13 +129,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const selectedConns = connections.filter(conn => conn.selected);
         if (!selectedConns.length) return alert("Select at least one device.");
         if (!pendingItems.length) return alert("No files or messages to send.");
-
         pendingItems.forEach(item => {
             selectedConns.forEach(conn => {
                 sendFileChunks(conn, item);
             });
         });
-
         pendingItems = [];
         updatePendingItemsUI();
     }
@@ -177,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function sendFileChunks(conn, file) {
         const chunkSize = 16 * 1024;
         let offset = 0;
-
         function sendNextChunk() {
             if (offset < file.data.length) {
                 const chunk = file.data.slice(offset, offset + chunkSize);
@@ -186,19 +149,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 setTimeout(sendNextChunk, 50);
             }
         }
-
         sendNextChunk();
     }
 
-    /***********************
-     * FILE RECEIVING
-     ***********************/
     let receivedFiles = {};
 
     function receiveFileChunk(sender, chunk) {
         if (!receivedFiles[sender]) receivedFiles[sender] = { name: chunk.name, data: "" };
         receivedFiles[sender].data += chunk.data;
-
         if (chunk.last) {
             displayIncomingFile(sender, { name: chunk.name, data: receivedFiles[sender].data });
             delete receivedFiles[sender];
@@ -223,9 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("myIDDisplay").innerText = myID;
-    
-    // Refresh the device list every second if no devices are selected,
-    // ensuring that closed devices are removed while new connections are still discovered.
+
     setInterval(() => {
         if (!connections.some(conn => conn.selected)) {
             renderDiscoveredPeers();
